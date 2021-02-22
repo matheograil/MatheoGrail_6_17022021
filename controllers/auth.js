@@ -13,11 +13,9 @@ exports.signup = (req, res, next) => {
 	});
 	UserValidator.check().then((matched) => {
 		if (matched) {
-			User.findOne({ email: req.body.email })
-			.then(user => {
+			User.findOne({ email: req.body.email }).then(user => {
 				if (!user) {
-					bcrypt.hash(req.body.password, 10)
-					.then(hash => {
+					bcrypt.hash(req.body.password, 10).then(hash => {
 						const user = new User({
 							email: req.body.email,
 							password: hash,
@@ -46,13 +44,11 @@ exports.login = (req, res, next) => {
 	});
 	UserValidator.check().then((matched) => {
 		if (matched) {
-			User.findOne({ email: req.body.email })
-			.then(user => {
+			User.findOne({ email: req.body.email }).then(user => {
 				if (!user) {
 					return res.status(401).json({ success: false, message: "Cet utilisateur n'existe pas dans notre base de données." });
 				} else {
-					bcrypt.compare(req.body.password, user.password)
-        			.then(valid => {
+					bcrypt.compare(req.body.password, user.password).then(valid => {
           				if (!valid) {
             				return res.status(401).json({ success: false, message: 'Le mot de passe est incorrect.' });
           				} else {
