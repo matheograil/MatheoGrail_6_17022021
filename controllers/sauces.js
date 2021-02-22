@@ -1,4 +1,4 @@
-const Sauce = require('../models/sauces');
+const Sauce = require('../models/sauce');
 
 // API : sauces.
 exports.get = (req, res, next) => {
