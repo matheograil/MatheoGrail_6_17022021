@@ -11,6 +11,6 @@ module.exports = (req, res, next) => {
 			next();
 		}
 	} catch {
-		res.status(401).json({ success: false, message: 'Requête invalide.' });
+		res.status(401).json({ success: false, message: "L'utilisateur doit être connecté." });
   	}
 };
