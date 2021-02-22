@@ -1,7 +1,7 @@
 # OpenClassrooms - Sixième projet
 Construisez une API sécurisée pour une application d'avis gastronomiques.
 
-![CI](https://github.com/matheograil/MatheoGrail_6_17022021/workflows/CI/badge.svg)
+[![CodeQL](https://github.com/matheograil/MatheoGrail_6_17022021/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/matheograil/MatheoGrail_6_17022021/actions/workflows/codeql-analysis.yml)
 
 - Nom et Prénom : Grail Mathéo
 - Projet : #06
