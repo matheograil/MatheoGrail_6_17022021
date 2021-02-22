@@ -1,5 +1,5 @@
 #Fichiers ignorés pour macOS.
 *.DS_store
 
-#Les modules Node ignorées.
+#Modules Node ignorées.
 node_modules

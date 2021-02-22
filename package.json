@@ -1,6 +1,6 @@
 {
   "name": "matheograil_6_17022021",
-  "version": "1.0.0",
+  "version": "0.1",
   "description": "Construisez une API sécurisée pour une application d'avis gastronomiques.",
   "main": "server.js",
   "scripts": {
@@ -10,7 +10,7 @@
     "type": "git",
     "url": "git+https://github.com/matheograil/MatheoGrail_6_17022021.git"
   },
-  "author": "",
+  "author": "Mathéo Grail",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/matheograil/MatheoGrail_6_17022021/issues"
