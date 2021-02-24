@@ -9,7 +9,7 @@ const jsonwebtoken = require('jsonwebtoken');
 exports.signup = (req, res) => {
 	const UserValidator = new Validator(req.body, {
 		email: 'required|email|maxLength:50',
-		password: 'required|minLength:10|maxLength:100'
+		password: 'required|string|lengthBetween:10,100',
 	});
 	UserValidator.check().then((matched) => {
 		if (matched) {
@@ -41,7 +41,7 @@ exports.signup = (req, res) => {
 exports.login = (req, res) => {
 	const UserValidator = new Validator(req.body, {
 		email: 'required|email|maxLength:50',
-		password: 'required|minLength:10|maxLength:100'
+		password: 'required|string|lengthBetween:10,100',
 	});
 	UserValidator.check().then((matched) => {
 		if (matched) {

@@ -21,8 +21,9 @@ const imageFilter = function(req, file, callback) {
     if (!file.originalname.match(/\.(jpg|JPG|jpeg|JPEG|png|PNG)$/)) {
 		req.fileValidationError = "Ce fichier ne peut pas être accepté.";
 		callback("Ce fichier ne peut pas être accepté.", false);
+	} else {
+		callback(null, true);
 	}
-	callback(null, true);
 };
 
 module.exports = multer({storage: storage, fileFilter: imageFilter, limits : {fileSize : 10000000}}).single("image");
