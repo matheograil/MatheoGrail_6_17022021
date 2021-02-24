@@ -34,7 +34,7 @@ exports.getId = (req, res) => {
 }
 
 // API : sauces.
-exports.post = (req, res, error) => {
+exports.post = (req, res) => {
 	const sentData = JSON.parse(req.body.sauce);
 	const SauceValidator = new Validator(sentData, {
 		userId: 'required|regex:[a-zA-z0123456789]|maxLength:50',

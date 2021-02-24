@@ -19,8 +19,7 @@ const storage = multer.diskStorage({
 
 const imageFilter = function(req, file, callback) {
     if (!file.originalname.match(/\.(jpg|JPG|jpeg|JPEG|png|PNG)$/)) {
-		req.fileValidationError = "Ce fichier ne peut pas être accepté.";
-		callback("Ce fichier ne peut pas être accepté.", false);
+		return callback (new Error("Ce fichier ne peut pas être accepté."), false);
 	} else {
 		callback(null, true);
 	}
