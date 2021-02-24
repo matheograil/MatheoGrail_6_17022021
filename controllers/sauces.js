@@ -3,21 +3,24 @@ const Sauce = require('../models/sauce');
 // Modules nécessaires.
 const { Validator } = require('node-input-validator');
 
-// API : sauces.
+// GET : api/sauces.
 exports.getAll = (req, res, next) => {
+	// Récupération des données.
 	Sauce.find({}).then((result) => {
 		res.status(200).json(result);
 	})
 	.catch(() => res.status(500).json({ error: 'Erreur lors de la requête SQL permettant de récupérer les sauces.' }));
 };
 
-// API : sauces/:id.
+// GET : api/sauces/:id.
 exports.getId = (req, res, next) => {
 	const SauceIdValidator = new Validator(req.params, {
 		id: 'required|regex:[a-zA-z0123456789]|maxLength:50'
 	});
+	// Vérification des données reçues.
 	SauceIdValidator.check().then((matched) => {
 		if (matched) {
+			// La sauce existe-t-elle ?
 			Sauce.findOne({ _id: req.params.id }).then(result => {
 				if (!result) {
 					res.status(400).json({ error: "La sauce indiquée n'existe pas." });
@@ -33,7 +36,7 @@ exports.getId = (req, res, next) => {
 	.catch(() => res.status(500).json({ error: 'Impossible de vérifier les données.' }));
 };
 
-// API : sauces.
+// POST : api/sauces.
 exports.post = (req, res, next) => {
 	const sentData = JSON.parse(req.body.sauce);
 	const SauceValidator = new Validator(sentData, {
@@ -44,6 +47,7 @@ exports.post = (req, res, next) => {
 		mainPepper: 'required|string|maxLength:250',
 		heat: 'required|integer|between:1,10'
 	});
+	// Vérification des données reçues.
 	SauceValidator.check().then((matched) => {
 		if (matched) {
 			const sauce = new Sauce({
@@ -59,6 +63,7 @@ exports.post = (req, res, next) => {
 				usersLiked: {},
 				usersDisliked: {}
 			});
+			// Enregistrement dans la base de données.
 			sauce.save()
 			.then(() => res.status(200))
 			.catch(() => res.status(500).json({ error: "Erreur lors de la requête SQL permettant d'enregistrer la sauce." }));
