@@ -1,9 +1,13 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const path = require('path');
 const app = express();
 
 //Permet de manipuler les données reçues via POST.
 app.use(bodyParser.json());
+
+//Permet de gérer la ressource "images" de manière statique.
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
 // Importation de la connexion à la base de données.
 const databaseConnection = require('./databaseConnection.js')

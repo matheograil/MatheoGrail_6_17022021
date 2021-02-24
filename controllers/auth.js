@@ -50,9 +50,9 @@ exports.login = (req, res) => {
 					res.status(400).json({ success: false, message: "Cet utilisateur n'existe pas dans notre base de données." });
 				} else {
 					bcrypt.compare(req.body.password, result.password).then(valid => {
-          				if (!valid) {
-            				res.status(400).json({ success: false, message: 'Le mot de passe est incorrect.' });
-          				} else {
+		  				if (!valid) {
+							res.status(400).json({ success: false, message: 'Le mot de passe est incorrect.' });
+		  				} else {
 							res.status(200).json({
 								success: true,
 								userId: result._id,
@@ -63,8 +63,8 @@ exports.login = (req, res) => {
 								)
 							});
 						}
-        			})
-        			.catch(() => res.status(500).json({ success: false, message: "Impossible de vérifier le mot de passe." }));
+					})
+					.catch(() => res.status(500).json({ success: false, message: "Impossible de vérifier le mot de passe." }));
 				}
 			})
 			.catch(() => res.status(500).json({ success: false, message: "Erreur lors de la requête SQL permettant de savoir si l'utilisateur existe déjà." }));

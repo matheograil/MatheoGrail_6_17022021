@@ -32,3 +32,17 @@ exports.getId = (req, res) => {
 	})
 	.catch(() => res.status(500).json({ success: false, message: 'Impossible de vérifier les données.' }));
 }
+
+// API : sauces.
+exports.post = (req, res) => {
+	console.log(req.body.sauce['name']);
+	const thingObject = JSON.parse(req.body.thing);
+	delete thingObject._id;
+	const thing = new Thing({
+		...thingObject,
+		imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+	});
+	thing.save()
+	.then(() => res.status(201).json({ message: 'Objet enregistré !'}))
+	.catch(error => res.status(400).json({ error }));
+};
