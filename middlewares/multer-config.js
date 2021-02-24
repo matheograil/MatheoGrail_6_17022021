@@ -1,20 +1,28 @@
 const multer = require('multer');
+const str = require('@supercharge/strings');
 
 const MIME_TYPES = {
 	'image/jpg': 'jpg',
 	'image/jpeg': 'jpg',
-	'image/png': 'png'
+	'image/png': 'png',
 };
 
-const storage = multer.diskStorage({
-	destination: (req, file, callback) => {
-		callback(null, 'images');
-	},
-	filename: (req, file, callback) => {
-		const name = file.originalname.split(' ').join('_');
+const storage = multer.diskStorage({   
+	destination: function(req, file, callback) { 
+		callback(null, './images');    
+	}, 
+	filename: function (req, file, callback) {
 		const extension = MIME_TYPES[file.mimetype];
-		callback(null, name + Date.now() + '.' + extension);
+		callback(null , str.random(50) + '.' + extension);   
 	}
 });
 
-module.exports = multer({storage: storage}).single('image');
+const imageFilter = function(req, file, callback) {
+    if (!file.originalname.match(/\.(jpg|JPG|jpeg|JPEG|png|PNG)$/)) {
+		req.fileValidationError = "Ce fichier ne peut pas être accepté.";
+		callback("Ce fichier ne peut pas être accepté.", false);
+	}
+	callback(null, true);
+};
+
+module.exports = multer({storage: storage, fileFilter: imageFilter, limits : {fileSize : 10000000}}).single("image");

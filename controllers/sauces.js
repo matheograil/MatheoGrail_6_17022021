@@ -34,15 +34,14 @@ exports.getId = (req, res) => {
 }
 
 // API : sauces.
-exports.post = (req, res) => {
-	console.log(req.body.sauce['name']);
-	const thingObject = JSON.parse(req.body.thing);
-	delete thingObject._id;
-	const thing = new Thing({
-		...thingObject,
-		imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-	});
-	thing.save()
-	.then(() => res.status(201).json({ message: 'Objet enregistré !'}))
-	.catch(error => res.status(400).json({ error }));
+exports.post = (req, res, err) => {
+	if (req.fileValidationError) {
+		res.status(400).json({ success: false, message: req.fileValidationError });
+	} else if (!req.file) {
+		res.status(400).json({ success: false, message: "Aucune image n'a été envoyée." });
+	} else if (err) {
+		res.status(500).json({ success: false, message: "Impossible d'envoyer l'image au serveur." });
+	}
+
+	console.log(err);
 };
