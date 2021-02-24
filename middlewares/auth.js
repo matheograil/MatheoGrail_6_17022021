@@ -6,11 +6,11 @@ module.exports = (req, res, next) => {
 		const decodedToken = jsonwebtoken.verify(token, 'RANDOM_TOKEN_SECRET');
 		const userId = decodedToken.userId;
 		if (req.body.userId && req.body.userId !== userId) {
-			throw "Identifiant de l'utilisateur invalide.";
+			res.status(400).json({ error: 'Identifiants incorrects.' });
 		} else {
 			next();
 		}
 	} catch {
-		res.status(401).json({ success: false, message: "L'utilisateur doit être connecté." });
+		res.status(401).json({ error: "L'utilisateur doit être connecté." });
   	}
 };
