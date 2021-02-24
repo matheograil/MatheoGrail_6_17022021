@@ -9,7 +9,7 @@ const jsonwebtoken = require('jsonwebtoken');
 exports.signup = (req, res) => {
 	const UserValidator = new Validator(req.body, {
 		email: 'required|email|maxLength:50',
-		password: 'required|minLength:10|maxLength:100'
+		password: 'required|string|lengthBetween:10,100',
 	});
 	UserValidator.check().then((matched) => {
 		if (matched) {
@@ -41,7 +41,7 @@ exports.signup = (req, res) => {
 exports.login = (req, res) => {
 	const UserValidator = new Validator(req.body, {
 		email: 'required|email|maxLength:50',
-		password: 'required|minLength:10|maxLength:100'
+		password: 'required|string|lengthBetween:10,100',
 	});
 	UserValidator.check().then((matched) => {
 		if (matched) {
@@ -50,9 +50,9 @@ exports.login = (req, res) => {
 					res.status(400).json({ success: false, message: "Cet utilisateur n'existe pas dans notre base de données." });
 				} else {
 					bcrypt.compare(req.body.password, result.password).then(valid => {
-          				if (!valid) {
-            				res.status(400).json({ success: false, message: 'Le mot de passe est incorrect.' });
-          				} else {
+		  				if (!valid) {
+							res.status(400).json({ success: false, message: 'Le mot de passe est incorrect.' });
+		  				} else {
 							res.status(200).json({
 								success: true,
 								userId: result._id,
@@ -63,8 +63,8 @@ exports.login = (req, res) => {
 								)
 							});
 						}
-        			})
-        			.catch(() => res.status(500).json({ success: false, message: "Impossible de vérifier le mot de passe." }));
+					})
+					.catch(() => res.status(500).json({ success: false, message: "Impossible de vérifier le mot de passe." }));
 				}
 			})
 			.catch(() => res.status(500).json({ success: false, message: "Erreur lors de la requête SQL permettant de savoir si l'utilisateur existe déjà." }));
