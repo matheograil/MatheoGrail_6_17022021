@@ -8,18 +8,21 @@ const MIME_TYPES = {
 };
 
 const storage = multer.diskStorage({
+	// Dossier de destination des fichiers.
 	destination: function(req, file, callback) {
 		callback(null, './images');
 	},
+	// Nom des fichiers.
 	filename: function (req, file, callback) {
 		const extension = MIME_TYPES[file.mimetype];
 		callback(null , str.random(50) + '.' + extension);
 	}
 });
 
+// On autorise seulement les images.
 const imageFilter = function(req, file, callback) {
     if (!file.originalname.match(/\.(jpg|JPG|jpeg|JPEG|png|PNG)$/)) {
-		return callback (new Error("Ce fichier ne peut pas être accepté."), false);
+		callback(null, false);
 	} else {
 		callback(null, true);
 	}
