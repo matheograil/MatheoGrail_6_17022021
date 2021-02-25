@@ -4,6 +4,7 @@ const Sauce = require('../models/sauce');
 const { Validator } = require('node-input-validator');
 const sanitize = require('mongo-sanitize');
 const fs = require('fs');
+const jsonwebtoken = require('jsonwebtoken');
 
 // GET : api/sauces.
 exports.getAll = (req, res, next) => {
@@ -89,19 +90,18 @@ exports.deleteId = (req, res, next) => {
 	SauceIdValidator.check().then((matched) => {
 		if (matched) {
 			// La sauce existe-t-elle ?
-
-			//
-			// TO DO : Être sûr que la sauce appartient à l'utilisateur en question.
-			//
-			Sauce.findOne({ _id: sanitize(req.params.id) }).then(result => {
+			const token = req.headers.authorization.split(' ')[1];
+			const decodedToken = jsonwebtoken.verify(token, 'RANDOM_TOKEN_SECRET');
+			const userId = decodedToken.userId;
+			Sauce.findOne({ _id: sanitize(req.params.id), userId: userId}).then(result => {
 				if (!result) {
-					res.status(400).json({ error: "La sauce indiquée n'existe pas." });
+					res.status(400).json({ error: "La sauce indiquée n'existe pas, ou alors elle ne vous appartient pas." });
 				} else {
 					// Suppresion de la sauce.
 					Sauce.deleteOne({ _id: sanitize(req.params.id) }).then(() => {
 						// Suppresion de l'image.
 						const filename = result.imageUrl.split('/images/')[1];
-      					fs.unlink(`./images/${filename}`, () => {
+						fs.unlink(`images/${filename}`, () => {
 							res.status(200).json({ message: 'La sauce a été supprimée.' })
 						});
 					})
