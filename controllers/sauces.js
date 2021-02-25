@@ -3,6 +3,7 @@ const Sauce = require('../models/sauce');
 // Modules nécessaires.
 const { Validator } = require('node-input-validator');
 const sanitize = require('mongo-sanitize');
+const fs = require('fs');
 
 // GET : api/sauces.
 exports.getAll = (req, res, next) => {
@@ -98,11 +99,11 @@ exports.deleteId = (req, res, next) => {
 				} else {
 					// Suppresion de la sauce.
 					Sauce.deleteOne({ _id: sanitize(req.params.id) }).then(() => {
-						//
-						// TO DO : Suppresion de l'image localement.
-						//
-
-						res.status(200).json({ message: 'La sauce a été supprimée.' })
+						// Suppresion de l'image.
+						const filename = result.imageUrl.split('/images/')[1];
+      					fs.unlink(`./images/${filename}`, () => {
+							res.status(200).json({ message: 'La sauce a été supprimée.' })
+						});
 					})
 					.catch(() => res.status(500).json({ error: "Erreur lors de la requête SQL permettant de supprimer la sauce." }));
 				}
