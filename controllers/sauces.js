@@ -2,7 +2,6 @@ const Sauce = require('../models/sauce');
 
 // Modules nécessaires.
 const { Validator } = require('node-input-validator');
-const sanitize = require('mongo-sanitize');
 
 // GET : api/sauces.
 exports.getAll = (req, res, next) => {
@@ -18,13 +17,11 @@ exports.getId = (req, res, next) => {
 	const SauceIdValidator = new Validator(req.params, {
 		id: 'required|regex:[a-zA-z0123456789]|maxLength:50'
 	});
-	// Protection contre les injections SQL pour la suite.
-	let id = sanitize(req.params.id);
 	// Vérification des données reçues.
 	SauceIdValidator.check().then((matched) => {
 		if (matched) {
 			// La sauce existe-t-elle ?
-			Sauce.findOne({ _id: id }).then(result => {
+			Sauce.findOne({ _id: req.params.id }).then(result => {
 				if (!result) {
 					res.status(400).json({ error: "La sauce indiquée n'existe pas." });
 				} else {
@@ -50,24 +47,17 @@ exports.post = (req, res, next) => {
 		mainPepper: 'required|string|maxLength:250',
 		heat: 'required|integer|between:1,10'
 	});
-	// Protection contre les injections SQL pour la suite.
-	let userId = sanitize(sentData.userId);
-	let name = sanitize(sentData.name);
-	let manufacturer = sanitize(sentData.manufacturer);
-	let description = sanitize(sentData.description);
-	let mainPepper = sanitize(sentData.mainPepper);
-	let heat = sanitize(sentData.heat);
 	// Vérification des données reçues.
 	SauceValidator.check().then((matched) => {
 		if (matched) {
 			const sauce = new Sauce({
-				userId: userId,
-				name: name,
-				manufacturer: manufacturer,
-				description: description,
-				mainPepper: mainPepper,
+				userId: sentData.userId,
+				name: sentData.name,
+				manufacturer: sentData.manufacturer,
+				description: sentData.description,
+				mainPepper: sentData.mainPepper,
 				imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
-				heat: heat,
+				heat: sentData.heat,
 				likes: 0,
 				dislikes: 0,
 				usersLiked: {},
@@ -89,18 +79,16 @@ exports.deleteId = (req, res, next) => {
 	const SauceIdValidator = new Validator(req.params, {
 		id: 'required|regex:[a-zA-z0123456789]|maxLength:50'
 	});
-	// Protection contre les injections SQL pour la suite.
-	let id = sanitize(req.params.id);
 	// Vérification des données reçues.
 	SauceIdValidator.check().then((matched) => {
 		if (matched) {
 			// La sauce existe-t-elle ?
-			Sauce.findOne({ _id: id }).then(result => {
+			Sauce.findOne({ _id: req.params.id }).then(result => {
 				if (!result) {
 					res.status(400).json({ error: "La sauce indiquée n'existe pas." });
 				} else {
 					// Suppresion de la sauce.
-					Sauce.deleteOne({ _id: id }).then(() => {
+					Sauce.deleteOne({ _id: req.params.id }).then(() => {
 						res.status(200).json({ message: 'La sauce a été supprimée.' })
 					})
 					.catch(() => res.status(500).json({ error: "Erreur lors de la requête SQL permettant de supprimer la sauce." }));

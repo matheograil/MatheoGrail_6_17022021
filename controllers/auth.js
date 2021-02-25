@@ -4,7 +4,6 @@ const User = require('../models/user');
 const bcrypt = require('bcrypt');
 const { Validator } = require('node-input-validator');
 const jsonwebtoken = require('jsonwebtoken');
-const sanitize = require('mongo-sanitize');
 
 // GET : api/auth/signup.
 exports.signup = (req, res, next) => {
@@ -12,19 +11,17 @@ exports.signup = (req, res, next) => {
 		email: 'required|email|maxLength:50',
 		password: 'required|string|lengthBetween:10,100'
 	});
-	// Protection contre les injections SQL pour la suite.
-	let email = sanitize(req.body.email);
-	let password = sanitize(req.body.password);
+
 	// Vérification des données reçues.
 	UserValidator.check().then((matched) => {
 		if (matched) {
 			// L'utilisateur existe-t-il ?
-			User.findOne({ email: email }).then(result => {
+			User.findOne({ email: req.body.email }).then(result => {
 				if (!result) {
 					// Chiffrement du mot de passe.
-					bcrypt.hash(password, 10).then(hash => {
+					bcrypt.hash(req.body.password, 10).then(hash => {
 						const user = new User({
-							email: email,
+							email: req.body.email,
 							password: hash
 						});
 						// Enregistrement dans la base de données.
@@ -51,19 +48,16 @@ exports.login = (req, res, next) => {
 		email: 'required|email|maxLength:50',
 		password: 'required|string|lengthBetween:10,100'
 	});
-	// Protection contre les injections SQL pour la suite.
-	let email = sanitize(req.body.email);
-	let password = sanitize(req.body.password);
 	// Vérification des données reçues.
 	UserValidator.check().then((matched) => {
 		if (matched) {
 			// L'utilisateur existe-t-il ?
-			User.findOne({ email: email }).then(result => {
+			User.findOne({ email: req.body.email }).then(result => {
 				if (!result) {
 					res.status(400).json({ error: "Cet utilisateur n'existe pas dans notre base de données." });
 				} else {
 					// Le mot de passe correspond-t-il ?
-					bcrypt.compare(password, result.password).then(valid => {
+					bcrypt.compare(req.body.password, result.password).then(valid => {
 		  				if (!valid) {
 							res.status(400).json({ error: 'Le mot de passe est incorrect.' });
 		  				} else {
