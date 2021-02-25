@@ -4,6 +4,7 @@ const User = require('../models/user');
 const bcrypt = require('bcrypt');
 const { Validator } = require('node-input-validator');
 const jsonwebtoken = require('jsonwebtoken');
+const sanitize = require('mongo-sanitize');
 
 // GET : api/auth/signup.
 exports.signup = (req, res, next) => {
@@ -11,17 +12,16 @@ exports.signup = (req, res, next) => {
 		email: 'required|email|maxLength:50',
 		password: 'required|string|lengthBetween:10,100'
 	});
-
 	// Vérification des données reçues.
 	UserValidator.check().then((matched) => {
 		if (matched) {
 			// L'utilisateur existe-t-il ?
-			User.findOne({ email: req.body.email }).then(result => {
+			User.findOne({ email: sanitize(req.body.email) }).then(result => {
 				if (!result) {
 					// Chiffrement du mot de passe.
 					bcrypt.hash(req.body.password, 10).then(hash => {
 						const user = new User({
-							email: req.body.email,
+							email: sanitize(req.body.email),
 							password: hash
 						});
 						// Enregistrement dans la base de données.
@@ -52,7 +52,7 @@ exports.login = (req, res, next) => {
 	UserValidator.check().then((matched) => {
 		if (matched) {
 			// L'utilisateur existe-t-il ?
-			User.findOne({ email: req.body.email }).then(result => {
+			User.findOne({ email: sanitize(req.body.email) }).then(result => {
 				if (!result) {
 					res.status(400).json({ error: "Cet utilisateur n'existe pas dans notre base de données." });
 				} else {
