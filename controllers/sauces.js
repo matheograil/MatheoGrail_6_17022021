@@ -65,8 +65,36 @@ exports.post = (req, res, next) => {
 			});
 			// Enregistrement dans la base de données.
 			sauce.save()
-			.then(() => res.status(200))
+			.then(() => res.status(200).json({ message: 'La sauce a été enregistrée.' }))
 			.catch(() => res.status(500).json({ error: "Erreur lors de la requête SQL permettant d'enregistrer la sauce." }));
+		} else {
+			res.status(400).json({ error: 'Les données envoyées ne sont pas valides.' });
+		}
+	})
+	.catch(() => res.status(500).json({ error: 'Impossible de vérifier les données.' }));
+};
+
+// DELETE : api/sauces/:id.
+exports.deleteId = (req, res, next) => {
+	const SauceIdValidator = new Validator(req.params, {
+		id: 'required|regex:[a-zA-z0123456789]|maxLength:50'
+	});
+	// Vérification des données reçues.
+	SauceIdValidator.check().then((matched) => {
+		if (matched) {
+			// La sauce existe-t-elle ?
+			Sauce.findOne({ _id: req.params.id }).then(result => {
+				if (!result) {
+					res.status(400).json({ error: "La sauce indiquée n'existe pas." });
+				} else {
+					// Suppresion de la sauce.
+					Sauce.deleteOne({ _id: req.params.id }).then(() => {
+						res.status(200).json({ message: 'La sauce a été supprimée.' })
+					})
+					.catch(() => res.status(500).json({ error: "Erreur lors de la requête SQL permettant de supprimer la sauce." }));
+				}
+			})
+			.catch(() => res.status(500).json({ error: "Erreur lors de la requête SQL permettant de récupérer la sauce." }));
 		} else {
 			res.status(400).json({ error: 'Les données envoyées ne sont pas valides.' });
 		}

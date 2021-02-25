@@ -26,7 +26,7 @@ exports.signup = (req, res, next) => {
 						});
 						// Enregistrement dans la base de données.
 						user.save()
-						.then(() => res.status(200))
+						.then(() => res.status(200).json({ message: "L'utilisateur a été enregistré." }))
 						.catch(() => res.status(500).json({ error: "Erreur lors de la requête SQL permettant d'enregistrer l'utilisateur." }));
 					})
 					.catch(() => res.status(500).json({ error: 'Erreur lors du hachage du mot de passe.' }));

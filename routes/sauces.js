@@ -13,5 +13,7 @@ router.get('/', auth, saucesCtrl.getAll);
 router.get('/:id', auth, saucesCtrl.getId);
 // POST : api/sauces.
 router.post('/', auth, multer, saucesCtrl.post);
+// DELETE : api/sauces/:id.
+router.delete('/:id', auth, saucesCtrl.deleteId);
 
 module.exports = router;
