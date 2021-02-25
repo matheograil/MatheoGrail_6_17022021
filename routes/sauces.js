@@ -7,11 +7,13 @@ const multer = require('../middlewares/multer-config');
 
 const saucesCtrl = require('../controllers/sauces');
 
-// API : sauces.
+// GET : api/sauces.
 router.get('/', auth, saucesCtrl.getAll);
-// API : sauces/:id.
+// GET : api/sauces/:id.
 router.get('/:id', auth, saucesCtrl.getId);
-// API : sauces.
+// POST : api/sauces.
 router.post('/', auth, multer, saucesCtrl.post);
+// DELETE : api/sauces/:id.
+router.delete('/:id', auth, saucesCtrl.deleteId);
 
 module.exports = router;

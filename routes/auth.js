@@ -3,9 +3,9 @@ const router = express.Router();
 
 const authCtrl = require('../controllers/auth');
 
-// API : auth/signup.
+// POST : api/auth/signup.
 router.post('/signup', authCtrl.signup);
-// API : auth/login.
+// POST : api/auth/login.
 router.post('/login', authCtrl.login);
 
 module.exports = router;
