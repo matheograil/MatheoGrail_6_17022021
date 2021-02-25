@@ -2,6 +2,7 @@ const Sauce = require('../models/sauce');
 
 // Modules nécessaires.
 const { Validator } = require('node-input-validator');
+const sanitize = require('mongo-sanitize');
 
 // GET : api/sauces.
 exports.getAll = (req, res, next) => {
@@ -21,7 +22,7 @@ exports.getId = (req, res, next) => {
 	SauceIdValidator.check().then((matched) => {
 		if (matched) {
 			// La sauce existe-t-elle ?
-			Sauce.findOne({ _id: req.params.id }).then(result => {
+			Sauce.findOne({ _id: sanitize(req.params.id) }).then(result => {
 				if (!result) {
 					res.status(400).json({ error: "La sauce indiquée n'existe pas." });
 				} else {
@@ -38,6 +39,10 @@ exports.getId = (req, res, next) => {
 
 // POST : api/sauces.
 exports.post = (req, res, next) => {
+	//
+	// TO DO : Refaire le système d'upload d'image (car même si une erreur se produit, l'image est quand même uploadé).
+	//
+
 	const sentData = JSON.parse(req.body.sauce);
 	const SauceValidator = new Validator(sentData, {
 		userId: 'required|regex:[a-zA-z0123456789]|maxLength:50',
@@ -51,13 +56,13 @@ exports.post = (req, res, next) => {
 	SauceValidator.check().then((matched) => {
 		if (matched) {
 			const sauce = new Sauce({
-				userId: sentData.userId,
-				name: sentData.name,
-				manufacturer: sentData.manufacturer,
-				description: sentData.description,
-				mainPepper: sentData.mainPepper,
+				userId: sanitize(sentData.userId),
+				name: sanitize(sentData.name),
+				manufacturer: sanitize(sentData.manufacturer),
+				description: sanitize(sentData.description),
+				mainPepper: sanitize(sentData.mainPepper),
 				imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
-				heat: sentData.heat,
+				heat: sanitize(sentData.heat),
 				likes: 0,
 				dislikes: 0,
 				usersLiked: {},
@@ -83,12 +88,20 @@ exports.deleteId = (req, res, next) => {
 	SauceIdValidator.check().then((matched) => {
 		if (matched) {
 			// La sauce existe-t-elle ?
-			Sauce.findOne({ _id: req.params.id }).then(result => {
+
+			//
+			// TO DO : Être sûr que la sauce appartient à l'utilisateur en question.
+			//
+			Sauce.findOne({ _id: sanitize(req.params.id) }).then(result => {
 				if (!result) {
 					res.status(400).json({ error: "La sauce indiquée n'existe pas." });
 				} else {
 					// Suppresion de la sauce.
-					Sauce.deleteOne({ _id: req.params.id }).then(() => {
+					Sauce.deleteOne({ _id: sanitize(req.params.id) }).then(() => {
+						//
+						// TO DO : Suppresion de l'image localement.
+						//
+
 						res.status(200).json({ message: 'La sauce a été supprimée.' })
 					})
 					.catch(() => res.status(500).json({ error: "Erreur lors de la requête SQL permettant de supprimer la sauce." }));
