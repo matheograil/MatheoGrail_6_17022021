@@ -101,9 +101,13 @@ exports.deleteId = (req, res, next) => {
 					Sauce.deleteOne({ _id: sanitize(req.params.id) }).then(() => {
 						// Suppresion de l'image.
 						const filename = result.imageUrl.split('/images/')[1];
-						fs.unlink(`images/${filename}`, () => {
-							res.status(200).json({ message: 'La sauce a été supprimée.' })
-						});
+						fs.unlink(`images/${filename}`, (err) => {
+							if (err) {
+								res.status(500).json({ error: "La sauce a été supprimée, mais une erreur s'est produite lors de la suppression de l'image." })
+							} else {
+								res.status(200).json({ message: 'La sauce a été supprimée.' })
+							}
+						})
 					})
 					.catch(() => res.status(500).json({ error: "Erreur lors de la requête SQL permettant de supprimer la sauce." }));
 				}
