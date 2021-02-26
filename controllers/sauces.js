@@ -44,7 +44,6 @@ exports.postSauce = (req, res, next) => {
 	//
 	// TO DO : Refaire le système d'upload d'image (car même si une erreur se produit, l'image est quand même uploadé).
 	//
-
 	const sentData = JSON.parse(req.body.sauce);
 	const SauceValidator = new Validator(sentData, {
 		userId: 'required|regex:[a-zA-z0123456789]|maxLength:50',
