@@ -12,7 +12,7 @@ exports.getSauces = (req, res, next) => {
 	Sauce.find({}).then((sauces) => {
 		res.status(200).json(sauces);
 	})
-	.catch(() => res.status(500));
+	.catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
 };
 
 // GET : api/sauces/:id.
@@ -31,12 +31,12 @@ exports.getSauce = (req, res, next) => {
 					res.status(200).json(sauce);
 				}
 			})
-			.catch(() => res.status(500));
+			.catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
 		} else {
 			res.status(400).json({ error: 'Les données envoyées sont incorrectes.' });
 		}
 	})
-	.catch(() => res.status(500));
+	.catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
 };
 
 // POST : api/sauces.
@@ -72,12 +72,12 @@ exports.postSauce = (req, res, next) => {
 			// Enregistrement dans la base de données.
 			sauce.save()
 			.then(() => res.status(200).json({ message: 'La sauce a été enregistrée.' }))
-			.catch(() => res.status(500));
+			.catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
 		} else {
 			res.status(400).json({ error: 'Les données envoyées sont incorrectes.' });
 		}
 	})
-	.catch(() => res.status(500));
+	.catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
 };
 
 // DELETE : api/sauces/:id.
@@ -100,21 +100,21 @@ exports.deleteSauce = (req, res, next) => {
 					Sauce.deleteOne({ _id: sanitize(req.params.id) }).then(() => {
 						// Suppresion de l'image.
 						const filename = sauce.imageUrl.split('/images/')[1];
-						fs.unlink(`images/${filename}`, (err) => {
+						fs.unlink(`./images/${filename}`, (err) => {
 							if (err) {
-								res.status(500);
+								res.status(500).json({ error: "Une erreur s'est produite." });
 							} else {
 								res.status(200).json({ message: 'La sauce a été supprimée.' });
 							}
 						})
 					})
-					.catch(() => res.status(500));
+					.catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
 				}
 			})
-			.catch(() => res.status(500));
+			.catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
 		} else {
 			res.status(400).json({ error: 'Les données envoyées sont incorrectes.' });
 		}
 	})
-	.catch(() => res.status(500));
+	.catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
 };
