@@ -7,7 +7,7 @@ const fs = require('fs');
 const jsonwebtoken = require('jsonwebtoken');
 
 // GET : api/sauces.
-exports.getAll = (req, res, next) => {
+exports.getSauces = (req, res, next) => {
 	// Récupération des données.
 	Sauce.find({}).then((sauces) => {
 		res.status(200).json(sauces);
@@ -16,7 +16,7 @@ exports.getAll = (req, res, next) => {
 };
 
 // GET : api/sauces/:id.
-exports.getId = (req, res, next) => {
+exports.getSauce = (req, res, next) => {
 	const SauceIdValidator = new Validator(req.params, {
 		id: 'required|regex:[a-zA-z0123456789]|maxLength:50'
 	});
@@ -40,7 +40,7 @@ exports.getId = (req, res, next) => {
 };
 
 // POST : api/sauces.
-exports.post = (req, res, next) => {
+exports.postSauce = (req, res, next) => {
 	//
 	// TO DO : Refaire le système d'upload d'image (car même si une erreur se produit, l'image est quand même uploadé).
 	//
@@ -82,7 +82,7 @@ exports.post = (req, res, next) => {
 };
 
 // DELETE : api/sauces/:id.
-exports.deleteId = (req, res, next) => {
+exports.deleteSauce = (req, res, next) => {
 	const SauceIdValidator = new Validator(req.params, {
 		id: 'required|regex:[a-zA-z0123456789]|maxLength:50'
 	});
