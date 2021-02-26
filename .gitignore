@@ -2,5 +2,5 @@
 *.DS_store
 #Modules Node ignorées.
 node_modules
-#Identifiants pour la connexion à la base de données ignorés.
-databaseConnection.js
+#Configuration ignorée.
+.env

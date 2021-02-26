@@ -7,7 +7,7 @@ const jsonwebtoken = require('jsonwebtoken');
 const sanitize = require('mongo-sanitize');
 
 // GET : api/auth/signup.
-exports.signup = (req, res, next) => {
+exports.register = (req, res, next) => {
 	const UserValidator = new Validator(req.body, {
 		email: 'required|email|maxLength:50',
 		password: 'required|string|lengthBetween:10,100'
@@ -16,8 +16,8 @@ exports.signup = (req, res, next) => {
 	UserValidator.check().then((matched) => {
 		if (matched) {
 			// L'utilisateur existe-t-il ?
-			User.findOne({ email: sanitize(req.body.email) }).then(result => {
-				if (!result) {
+			User.findOne({ email: sanitize(req.body.email) }).then(user => {
+				if (!user) {
 					// Chiffrement du mot de passe.
 					bcrypt.hash(req.body.password, 10).then(hash => {
 						const user = new User({
@@ -27,19 +27,19 @@ exports.signup = (req, res, next) => {
 						// Enregistrement dans la base de données.
 						user.save()
 						.then(() => res.status(200).json({ message: "L'utilisateur a été enregistré." }))
-						.catch(() => res.status(500).json({ error: "Erreur lors de la requête SQL permettant d'enregistrer l'utilisateur." }));
+						.catch(() => res.status(500));
 					})
-					.catch(() => res.status(500).json({ error: 'Erreur lors du hachage du mot de passe.' }));
+					.catch(() => res.status(500));
 				} else {
-					res.status(400).json({ error: "L'utilisateur existe déjà dans notre base de données." });
+					res.status(400).json({ error: 'Cette adresse électronique est déjà utilisée.' });
 				}
 			})
-			.catch(() => res.status(500).json({ error: "Erreur lors de la requête SQL permettant de savoir si l'utilisateur existe déjà." }));
+			.catch(() => res.status(500));
 		} else {
-			res.status(400).json({ error: 'Les données envoyées ne sont pas valides.' });
+			res.status(400).json({ error: 'Les identifiants sont incorrects.' });
 		}
 	})
-	.catch(() => res.status(500).json({ error: 'Impossible de vérifier les données.' }));
+	.catch(() => res.status(500));
 };
 
 // POST : api/auth/login.
@@ -52,33 +52,33 @@ exports.login = (req, res, next) => {
 	UserValidator.check().then((matched) => {
 		if (matched) {
 			// L'utilisateur existe-t-il ?
-			User.findOne({ email: sanitize(req.body.email) }).then(result => {
-				if (!result) {
-					res.status(400).json({ error: "Cet utilisateur n'existe pas dans notre base de données." });
+			User.findOne({ email: sanitize(req.body.email) }).then(user => {
+				if (!user) {
+					res.status(400).json({ error: 'Les identifiants sont incorrects.' });
 				} else {
 					// Le mot de passe correspond-t-il ?
-					bcrypt.compare(req.body.password, result.password).then(valid => {
+					bcrypt.compare(req.body.password, user.password).then(valid => {
 		  				if (!valid) {
-							res.status(400).json({ error: 'Le mot de passe est incorrect.' });
+							res.status(400).json({ error: 'Les identifiants sont incorrects.' });
 		  				} else {
 							// Enregistrement du jeton d'accès.
 							res.status(200).json({
-								userId: result._id,
+								userId: user._id,
 								token: jsonwebtoken.sign(
-									{ userId: result._id },
-									'RANDOM_TOKEN_SECRET',
-									{ expiresIn: '12h' }		  
+									{ userId: user._id },
+									process.env.JWT_TOKEN,
+									{ expiresIn: '12h' }
 								)
 							});
 						}
 					})
-					.catch(() => res.status(500).json({ error: "Impossible de vérifier le mot de passe." }));
+					.catch(() => res.status(500));
 				}
 			})
-			.catch(() => res.status(500).json({ error: "Erreur lors de la requête SQL permettant de savoir si l'utilisateur existe déjà." }));
+			.catch(() => res.status(500));
 		} else {
-			res.status(400).json({ error: 'Les données envoyées ne sont pas valides.' });
+			res.status(400).json({ error: 'Les identifiants sont incorrects.' });
 		}
 	})
-	.catch(() => res.status(500).json({ error: 'Impossible de vérifier les données.' }));
+	.catch(() => res.status(500));
 };

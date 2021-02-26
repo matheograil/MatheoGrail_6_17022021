@@ -8,12 +8,12 @@ const multer = require('../middlewares/multer-config');
 const saucesCtrl = require('../controllers/sauces');
 
 // GET : api/sauces.
-router.get('/', auth, saucesCtrl.getAll);
+router.get('/', auth, saucesCtrl.getSauces);
 // GET : api/sauces/:id.
-router.get('/:id', auth, saucesCtrl.getId);
+router.get('/:id', auth, saucesCtrl.getSauce);
 // POST : api/sauces.
-router.post('/', auth, multer, saucesCtrl.post);
+router.post('/', auth, multer, saucesCtrl.postSauce);
 // DELETE : api/sauces/:id.
-router.delete('/:id', auth, saucesCtrl.deleteId);
+router.delete('/:id', auth, saucesCtrl.deleteSauce);
 
 module.exports = router;
