@@ -11,7 +11,6 @@ exports.signup = (req, res, next) => {
 	const UserValidator = new Validator(req.body, {
 		email: 'required|email|maxLength:50',
 		password: 'required|string|lengthBetween:10,100'
-		// TO DO : mettre une majuscule, miniscule...
 	});
 	// Vérification des données reçues.
 	UserValidator.check().then((matched) => {
