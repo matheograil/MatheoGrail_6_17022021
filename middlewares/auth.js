@@ -6,7 +6,7 @@ module.exports = (req, res, next) => {
 		const decodedToken = jsonwebtoken.verify(token, 'RANDOM_TOKEN_SECRET');
 		const userId = decodedToken.userId;
 		if (req.body.userId && req.body.userId !== userId) {
-			res.status(400).json({ error: 'Identifiants incorrects.' });
+			res.status(400).json({ error: 'Les identifiants sont incorrects.' });
 		} else {
 			next();
 		}

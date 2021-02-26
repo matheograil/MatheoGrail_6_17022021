@@ -6,6 +6,8 @@ const app = express();
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 
+// TO DO : header....
+
 // Importation de la connexion à la base de données.
 const databaseConnection = require('./databaseConnection.js')
 

@@ -9,10 +9,12 @@ const jsonwebtoken = require('jsonwebtoken');
 // GET : api/sauces.
 exports.getAll = (req, res, next) => {
 	// Récupération des données.
+
+	// TO DO : changer nom variable.
 	Sauce.find({}).then((result) => {
 		res.status(200).json(result);
 	})
-	.catch(() => res.status(500).json({ error: 'Erreur lors de la requête SQL permettant de récupérer les sauces.' }));
+	.catch(() => res.status(500));
 };
 
 // GET : api/sauces/:id.
@@ -31,12 +33,12 @@ exports.getId = (req, res, next) => {
 					res.status(200).json(result);
 				}
 			})
-			.catch(() => res.status(500).json({ error: "Erreur lors de la requête SQL permettant de récupérer la sauce." }));
+			.catch(() => res.status(500));
 		} else {
-			res.status(400).json({ error: 'Les données envoyées ne sont pas valides.' });
+			res.status(400).json({ error: 'Les données envoyées sont incorrectes.' });
 		}
 	})
-	.catch(() => res.status(500).json({ error: 'Impossible de vérifier les données.' }));
+	.catch(() => res.status(500));
 };
 
 // POST : api/sauces.
@@ -73,12 +75,12 @@ exports.post = (req, res, next) => {
 			// Enregistrement dans la base de données.
 			sauce.save()
 			.then(() => res.status(200).json({ message: 'La sauce a été enregistrée.' }))
-			.catch(() => res.status(500).json({ error: "Erreur lors de la requête SQL permettant d'enregistrer la sauce." }));
+			.catch(() => res.status(500));
 		} else {
-			res.status(400).json({ error: 'Les données envoyées ne sont pas valides.' });
+			res.status(400).json({ error: 'Les données envoyées sont incorrectes.' });
 		}
 	})
-	.catch(() => res.status(500).json({ error: 'Impossible de vérifier les données.' }));
+	.catch(() => res.status(500));
 };
 
 // DELETE : api/sauces/:id.
@@ -103,19 +105,19 @@ exports.deleteId = (req, res, next) => {
 						const filename = result.imageUrl.split('/images/')[1];
 						fs.unlink(`images/${filename}`, (err) => {
 							if (err) {
-								res.status(500).json({ error: "La sauce a été supprimée, mais une erreur s'est produite lors de la suppression de l'image." })
+								res.status(500);
 							} else {
-								res.status(200).json({ message: 'La sauce a été supprimée.' })
+								res.status(200).json({ message: 'La sauce a été supprimée.' });
 							}
 						})
 					})
-					.catch(() => res.status(500).json({ error: "Erreur lors de la requête SQL permettant de supprimer la sauce." }));
+					.catch(() => res.status(500));
 				}
 			})
-			.catch(() => res.status(500).json({ error: "Erreur lors de la requête SQL permettant de récupérer la sauce." }));
+			.catch(() => res.status(500));
 		} else {
-			res.status(400).json({ error: 'Les données envoyées ne sont pas valides.' });
+			res.status(400).json({ error: 'Les données envoyées sont incorrectes.' });
 		}
 	})
-	.catch(() => res.status(500).json({ error: 'Impossible de vérifier les données.' }));
+	.catch(() => res.status(500));
 };
