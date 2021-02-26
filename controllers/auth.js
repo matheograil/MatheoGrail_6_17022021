@@ -66,10 +66,8 @@ exports.login = (req, res, next) => {
 								userId: result._id,
 								token: jsonwebtoken.sign(
 									{ userId: result._id },
-									'RANDOM_TOKEN_SECRET',
+									process.env.JWT_TOKEN,
 									{ expiresIn: '12h' }
-									
-									//TO DO : dotenv
 								)
 							});
 						}

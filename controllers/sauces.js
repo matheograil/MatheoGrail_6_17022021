@@ -93,7 +93,7 @@ exports.deleteId = (req, res, next) => {
 		if (matched) {
 			// La sauce existe-t-elle ?
 			const token = req.headers.authorization.split(' ')[1];
-			const decodedToken = jsonwebtoken.verify(token, 'RANDOM_TOKEN_SECRET');
+			const decodedToken = jsonwebtoken.verify(token, process.env.JWT_TOKEN);
 			const userId = decodedToken.userId;
 			Sauce.findOne({ _id: sanitize(req.params.id), userId: userId}).then(result => {
 				if (!result) {
