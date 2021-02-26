@@ -16,8 +16,8 @@ exports.signup = (req, res, next) => {
 	UserValidator.check().then((matched) => {
 		if (matched) {
 			// L'utilisateur existe-t-il ?
-			User.findOne({ email: sanitize(req.body.email) }).then(result => {
-				if (!result) {
+			User.findOne({ email: sanitize(req.body.email) }).then(user => {
+				if (!user) {
 					// Chiffrement du mot de passe.
 					bcrypt.hash(req.body.password, 10).then(hash => {
 						const user = new User({
@@ -52,20 +52,20 @@ exports.login = (req, res, next) => {
 	UserValidator.check().then((matched) => {
 		if (matched) {
 			// L'utilisateur existe-t-il ?
-			User.findOne({ email: sanitize(req.body.email) }).then(result => {
-				if (!result) {
+			User.findOne({ email: sanitize(req.body.email) }).then(user => {
+				if (!user) {
 					res.status(400).json({ error: 'Les identifiants sont incorrects.' });
 				} else {
 					// Le mot de passe correspond-t-il ?
-					bcrypt.compare(req.body.password, result.password).then(valid => {
+					bcrypt.compare(req.body.password, user.password).then(valid => {
 		  				if (!valid) {
 							res.status(400).json({ error: 'Les identifiants sont incorrects.' });
 		  				} else {
 							// Enregistrement du jeton d'accès.
 							res.status(200).json({
-								userId: result._id,
+								userId: user._id,
 								token: jsonwebtoken.sign(
-									{ userId: result._id },
+									{ userId: user._id },
 									process.env.JWT_TOKEN,
 									{ expiresIn: '12h' }
 								)

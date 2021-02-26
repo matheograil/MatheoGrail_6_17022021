@@ -9,10 +9,8 @@ const jsonwebtoken = require('jsonwebtoken');
 // GET : api/sauces.
 exports.getAll = (req, res, next) => {
 	// Récupération des données.
-
-	// TO DO : changer nom variable.
-	Sauce.find({}).then((result) => {
-		res.status(200).json(result);
+	Sauce.find({}).then((sauces) => {
+		res.status(200).json(sauces);
 	})
 	.catch(() => res.status(500));
 };
@@ -26,11 +24,11 @@ exports.getId = (req, res, next) => {
 	SauceIdValidator.check().then((matched) => {
 		if (matched) {
 			// La sauce existe-t-elle ?
-			Sauce.findOne({ _id: sanitize(req.params.id) }).then(result => {
-				if (!result) {
+			Sauce.findOne({ _id: sanitize(req.params.id) }).then(sauce => {
+				if (!sauce) {
 					res.status(400).json({ error: "La sauce indiquée n'existe pas." });
 				} else {
-					res.status(200).json(result);
+					res.status(200).json(sauce);
 				}
 			})
 			.catch(() => res.status(500));
@@ -95,14 +93,14 @@ exports.deleteId = (req, res, next) => {
 			const token = req.headers.authorization.split(' ')[1];
 			const decodedToken = jsonwebtoken.verify(token, process.env.JWT_TOKEN);
 			const userId = decodedToken.userId;
-			Sauce.findOne({ _id: sanitize(req.params.id), userId: userId}).then(result => {
-				if (!result) {
+			Sauce.findOne({ _id: sanitize(req.params.id), userId: userId}).then(sauce => {
+				if (!sauce) {
 					res.status(400).json({ error: "La sauce indiquée n'existe pas, ou alors elle ne vous appartient pas." });
 				} else {
 					// Suppresion de la sauce.
 					Sauce.deleteOne({ _id: sanitize(req.params.id) }).then(() => {
 						// Suppresion de l'image.
-						const filename = result.imageUrl.split('/images/')[1];
+						const filename = sauce.imageUrl.split('/images/')[1];
 						fs.unlink(`images/${filename}`, (err) => {
 							if (err) {
 								res.status(500);
