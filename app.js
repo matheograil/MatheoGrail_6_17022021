@@ -15,7 +15,7 @@ app.use((req, res, next) => {
 });
 
 // Importation de la configuration.
-require('dotenv').config()
+require('dotenv').config();
 
 // Connexion à la base de données.
 const mongoose = require('mongoose');
