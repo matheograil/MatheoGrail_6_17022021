@@ -118,3 +118,38 @@ exports.deleteSauce = (req, res, next) => {
 		}
 	}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
 };
+
+// POST : api/sauces/:id/like.
+exports.sauceReview = (req, res, next) => {
+	const SauceIdValidator = new Validator(req.params, {
+		id: 'required|regex:[a-zA-z0123456789]|maxLength:50'
+	});
+	// Vérification des données reçues.
+	SauceIdValidator.check().then((matched) => {
+		if (matched) {
+			// Récupération de la sauce.
+			Sauce.findOne({ _id: sanitize(req.params.id)}).then(sauce => {
+				if (sauce) {
+					const token = req.headers.authorization.split(' ')[1];
+					const decodedToken = jsonwebtoken.verify(token, process.env.JWT_TOKEN);
+					const userId = decodedToken.userId;
+					// On récupère l'avis actuel :
+					// Si userReview = -1 -> l'utilisateur ne l'aime pas.
+					// Si userReview = 0 -> l'utilisateur n'a pas d'avis.
+					// Si userReview = +1 -> l'utilisateur aime déjà.
+					saucesMiddlewares.userReview(sauce, userId).then((userReview) => {
+						switch (userReview) {
+							case -1:
+							case 0:
+							case +1:
+						}
+					}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
+				} else {
+					res.status(400).json({ error: "La sauce indiquée n'existe pas." });
+				}
+			}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
+		} else {
+			res.status(400).json({ error: 'Les données envoyées sont incorrectes.' });
+		}
+	}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
+}
