@@ -20,8 +20,8 @@ require('dotenv').config();
 // Connexion à la base de données.
 const mongoose = require('mongoose');
 mongoose.connect(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}/${process.env.DB_DATABASE}?retryWrites=true&w=majority`, { useNewUrlParser: true, useUnifiedTopology: true })
-.then(() => console.log('Connexion à la base de données réussie.'))
-.catch(() => console.log('Connexion à la base de données échouée.'));
+    .then(() => console.log('Connexion à la base de données réussie.'))
+    .catch(() => console.log('Connexion à la base de données échouée.'));
 
 // Les différentes routes.
 const registerRoutes = require('./routes/auth');
