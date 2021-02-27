@@ -3,16 +3,15 @@ const Sauce = require('../models/sauce');
 // Modules nécessaires.
 const { Validator } = require('node-input-validator');
 const sanitize = require('mongo-sanitize');
-const fs = require('fs');
 const jsonwebtoken = require('jsonwebtoken');
+const saucesMiddlewares = require('../middlewares/sauces');
 
 // GET : api/sauces.
 exports.getSauces = (req, res, next) => {
 	// Récupération des données.
 	Sauce.find({}).then((sauces) => {
 		res.status(200).json(sauces);
-	})
-	.catch(() => res.status(500));
+	}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
 };
 
 // GET : api/sauces/:id.
@@ -30,13 +29,11 @@ exports.getSauce = (req, res, next) => {
 				} else {
 					res.status(200).json(sauce);
 				}
-			})
-			.catch(() => res.status(500));
+			}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
 		} else {
 			res.status(400).json({ error: 'Les données envoyées sont incorrectes.' });
 		}
-	})
-	.catch(() => res.status(500));
+	}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
 };
 
 // POST : api/sauces.
@@ -72,12 +69,22 @@ exports.postSauce = (req, res, next) => {
 			// Enregistrement dans la base de données.
 			sauce.save()
 			.then(() => res.status(200).json({ message: 'La sauce a été enregistrée.' }))
-			.catch(() => res.status(500));
+			.catch(() => { 
+				//Suppresion de l'image.
+				saucesMiddlewares.deleteImage(req.file.filename);
+				res.status(500).json({ error: "Une erreur s'est produite." });
+			});
 		} else {
-			res.status(400).json({ error: 'Les données envoyées sont incorrectes.' });
+			//Suppresion de l'image.
+			saucesMiddlewares.deleteImage(req.file.filename)
+				.then(() => res.status(400).json({ error: 'Les données envoyées sont incorrectes.' }))
+				.catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
 		}
-	})
-	.catch(() => res.status(500));
+	}).catch(() => {
+		//Suppresion de l'image.
+		saucesMiddlewares.deleteImage(req.file.filename);
+		res.status(500).json({ error: "Une erreur s'est produite." });
+	});
 };
 
 // DELETE : api/sauces/:id.
@@ -100,21 +107,14 @@ exports.deleteSauce = (req, res, next) => {
 					Sauce.deleteOne({ _id: sanitize(req.params.id) }).then(() => {
 						// Suppresion de l'image.
 						const filename = sauce.imageUrl.split('/images/')[1];
-						fs.unlink(`images/${filename}`, (err) => {
-							if (err) {
-								res.status(500);
-							} else {
-								res.status(200).json({ message: 'La sauce a été supprimée.' });
-							}
-						})
-					})
-					.catch(() => res.status(500));
+						saucesMiddlewares.deleteImage(filename)
+							.then(() => res.status(200).json({ message: 'La sauce a été supprimée.' }))
+							.catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
+					}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
 				}
-			})
-			.catch(() => res.status(500));
+			}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
 		} else {
 			res.status(400).json({ error: 'Les données envoyées sont incorrectes.' });
 		}
-	})
-	.catch(() => res.status(500));
+	}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
 };
