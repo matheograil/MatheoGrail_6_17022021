@@ -155,32 +155,35 @@ exports.sauceReview = (req, res, next) => {
 						switch (userReview.userReview) {
 							case -1:
 								if (like == +1) {
-									// Mettre un LIKE.
+									saucesMiddlewares.dislikeSauce(sauce.usersDisliked, userId, userReview.iterations, 'delete');
+									saucesMiddlewares.dislikeSauce(sauce.usersLiked, userId, userReview.iterations, 'put');
 								} else if (like == 0) {
-									// Enlever le DISLIKE.
+									saucesMiddlewares.dislikeSauce(sauce.usersDisliked, userId, userReview.iterations, 'delete');
 								} else if (like == -1) {
 									res.status(400).json({ error: "L'utilisateur a déjà effectué cette action." });
 								}
 								break;
 							case 0:
 								if (like == +1) {
-									// Mettre un LIKE.
+									saucesMiddlewares.dislikeSauce(sauce.usersLiked, userId, userReview.iterations, 'put');
 								} else if (like == 0) {
 									res.status(400).json({ error: "L'utilisateur a déjà effectué cette action." });
 								} else if (like == -1) {
-									// Mettre un DISLIKE.
+									saucesMiddlewares.dislikeSauce(sauce.usersDisliked, userId, userReview.iterations, 'put');
 								}
 								break;
 							case +1:
 								if (like == +1) {
 									res.status(400).json({ error: "L'utilisateur a déjà effectué cette action." });
 								} else if (like == 0) {
-									// Enlever le LIKE.
+									saucesMiddlewares.dislikeSauce(sauce.usersLiked, userId, userReview.iterations, 'delete');
 								} else if (like == -1) {
-									// Mettre un DISLIKE.
+									saucesMiddlewares.dislikeSauce(sauce.usersLiked, userId, userReview.iterations, 'delete');
+									saucesMiddlewares.dislikeSauce(sauce.usersDisliked, userId, userReview.iterations, 'delete');
 								}
 								break;
 						}
+						// Mise à jour de la base de données...
 					}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
 				} else {
 					res.status(400).json({ error: "La sauce indiquée n'existe pas." });

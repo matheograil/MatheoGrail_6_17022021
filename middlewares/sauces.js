@@ -51,10 +51,15 @@ async function isUserDisliked(usersDisliked, userId) {
 module.exports.isUserDisliked = isUserDisliked;
 
 // Fonction permettant d'aimer une sauce.
-async function likeSauce(sauce, userId, iterations) {
+async function likeSauce(usersLiked, userId, iterations, action) {
 	return new Promise(function(resolve, reject) {
 		try {
-			
+			if (action == 'put') {
+				usersLiked.push(userId);
+			} else if (action == 'delete') {
+				delete usersLiked[iterations];
+			}
+			return usersLiked;
 		} catch(err) {
 			reject(err);
 		}
@@ -63,10 +68,15 @@ async function likeSauce(sauce, userId, iterations) {
 module.exports.likeSauce = likeSauce;
 
 // Fonction permettant de ne pas aimer une sauce.
-async function dislikeSauce(sauce, userId, iterations) {
+async function dislikeSauce(usersDisliked, userId, iterations, action) {
 	return new Promise(function(resolve, reject) {
 		try {
-			
+			if (action == 'put') {
+				usersDisliked.push(userId);
+			} else if (action == 'delete') {
+				delete usersDisliked[iterations];
+			}
+			return usersDisliked;
 		} catch(err) {
 			reject(err);
 		}
