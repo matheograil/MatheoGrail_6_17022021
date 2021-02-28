@@ -1,4 +1,8 @@
+const Sauce = require('../models/sauce');
+
+// Modules nécessaires.
 const fs = require('fs');
+const sanitize = require('mongo-sanitize');
 
 // Fonction permettant de supprimer une image.
 function deleteImage (filename) {
@@ -7,7 +11,7 @@ function deleteImage (filename) {
 			if (err) {
 				reject(err);
 			} else {
-				resolve("L'image a été supprimée.");
+				resolve("Success");
 			}
 		});
 	});
@@ -50,36 +54,51 @@ async function isUserDisliked(usersDisliked, userId) {
 };
 module.exports.isUserDisliked = isUserDisliked;
 
-// Fonction permettant d'aimer une sauce.
-async function likeSauce(usersLiked, userId, iterations, action) {
+// Fonction permettant d'aimer ou non une sauce.
+function review(array, userId, iterations, action) {
 	return new Promise(function(resolve, reject) {
 		try {
 			if (action == 'put') {
-				usersLiked.push(userId);
+				array.push(userId);
 			} else if (action == 'delete') {
-				delete usersLiked[iterations];
+				delete array[iterations];
 			}
-			return usersLiked;
+			resolve(array);
 		} catch(err) {
 			reject(err);
 		}
 	});
 };
-module.exports.likeSauce = likeSauce;
+module.exports.review = review;
 
-// Fonction permettant de ne pas aimer une sauce.
-async function dislikeSauce(usersDisliked, userId, iterations, action) {
+// Fonction permettant de mettre à jour la sauce avec l'avis de l'utilisateur.
+function putReview(usersLiked, usersDisliked, sauceId) {
 	return new Promise(function(resolve, reject) {
-		try {
-			if (action == 'put') {
-				usersDisliked.push(userId);
-			} else if (action == 'delete') {
-				delete usersDisliked[iterations];
-			}
-			return usersDisliked;
-		} catch(err) {
-			reject(err);
+		if (usersLiked && usersDisliked) {
+			Sauce.where('_id', sanitize(sauceId)).update({$set: {usersLiked: usersLiked, usersDisliked: usersDisliked}}, function (err) {
+				if (err) {
+					reject(err);
+				} else {
+					resolve("Success");
+				}
+			});
+		} else if (usersDisliked == false) {
+			Sauce.where('_id', sanitize(sauceId)).update({$set: {usersLiked: usersLiked}}, function (err) {
+				if (err) {
+					reject(err);
+				} else {
+					resolve("Success");
+				}
+			});
+		} else if (usersLiked == false) {
+			Sauce.where('_id', sanitize(sauceId)).update({$set: {usersDisliked: usersDisliked}}, function (err) {
+				if (err) {
+					reject(err);
+				} else {
+					resolve("Success");
+				}
+			});
 		}
 	});
 };
-module.exports.dislikeSauce = dislikeSauce;
+module.exports.putReview = putReview;

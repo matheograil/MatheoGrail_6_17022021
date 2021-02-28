@@ -1,3 +1,4 @@
+// Modules nécessaires.
 const multer = require('multer');
 const str = require('@supercharge/strings');
 
