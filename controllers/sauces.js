@@ -63,8 +63,8 @@ exports.postSauce = (req, res, next) => {
 				heat: sanitize(sentData.heat),
 				likes: 0,
 				dislikes: 0,
-				usersLiked: {},
-				usersDisliked: {}
+				usersLiked: new Array(),
+				usersDisliked: new Array()
 			});
 			// Enregistrement dans la base de données.
 			sauce.save()
@@ -135,8 +135,8 @@ exports.sauceReview = (req, res, next) => {
 					const userId = decodedToken.userId;
 					// Fonction permettant de savoir le type d'avis que l'utilisateur a posté sur une sauce.
 					async function userReview(sauce, userId) {
-						const isUserLiked = await saucesMiddlewares.isUserLiked(sauce.usersLiked, userId);
-						const isUserDisliked = await saucesMiddlewares.isUserDisliked(sauce.usersDisliked, userId);
+						const isUserLiked = await saucesMiddlewares.isUserHaveReview(sauce.usersLiked, userId);
+						const isUserDisliked = await saucesMiddlewares.isUserHaveReview(sauce.usersDisliked, userId);
 						if (isUserLiked.result == true) {
 							userReview = +1;
 							i = isUserLiked.iterations;
@@ -152,8 +152,6 @@ exports.sauceReview = (req, res, next) => {
 					// On récupère l'avis actuel de l'utilisateur.
 					userReview(sauce, userId).then((userReview) => {
 						const like = req.body.like;
-						let arrayLikes;
-						let arrayDisliked;
 						switch (userReview.userReview) {
 							case -1:
 								if (like == +1) {

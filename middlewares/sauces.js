@@ -18,41 +18,29 @@ function deleteImage (filename) {
 };
 module.exports.deleteImage = deleteImage;
 
-// Fonction permettant de savoir si l'utilisateur a aimé une sauce.
-async function isUserLiked(usersLiked, userId) {
+// Fonction permettant de savoir si l'utilisateur a aimé ou non une sauce.
+async function isUserHaveReview(array, userId) {
 	return new Promise(function(resolve, reject) {
 		try {
-			for (i in usersLiked) {
-				if (usersLiked[i] == userId) {
-					resolve({result: true, iterations: i});
-				} else {
-					resolve(false);
+			let total = 0;
+			for (i in array) {
+				if (array[i] == userId) {
+					let resolve = true;
+					total++;
 				}
+			}
+			if (resolve == true) {
+				console.log(total);
+				resolve({result: true, iterations: i});
+			} else {
+				resolve({result: false});
 			}
 		} catch(err) {
 			reject(err);
 		}
 	});
 };
-module.exports.isUserLiked = isUserLiked;
-
-// Fonction permettant de savoir si l'utilisateur n'a pas aimé une sauce.
-async function isUserDisliked(usersDisliked, userId) {
-	return new Promise(function(resolve, reject) {
-		try {
-			for (i in usersDisliked) {
-				if (usersDisliked[i] == userId) {
-					resolve({result: true, iterations: i});
-				} else {
-					resolve(false);
-				}
-			}
-		} catch(err) {
-			reject(err);
-		}
-	});
-};
-module.exports.isUserDisliked = isUserDisliked;
+module.exports.isUserHaveReview = isUserHaveReview;
 
 // Fonction permettant d'aimer ou non une sauce.
 function review(array, userId, iterations, action) {
