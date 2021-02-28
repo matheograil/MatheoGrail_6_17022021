@@ -63,8 +63,8 @@ exports.postSauce = (req, res, next) => {
 				heat: sanitize(sentData.heat),
 				likes: 0,
 				dislikes: 0,
-				usersLiked: {},
-				usersDisliked: {}
+				usersLiked: new Array(),
+				usersDisliked: new Array()
 			});
 			// Enregistrement dans la base de données.
 			sauce.save()
@@ -118,3 +118,91 @@ exports.deleteSauce = (req, res, next) => {
 		}
 	}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
 };
+
+// POST : api/sauces/:id/like.
+exports.sauceReview = (req, res, next) => {
+	const SauceIdValidator = new Validator(req.params, {
+		id: 'required|regex:[a-zA-z0123456789]|maxLength:50'
+	});
+	// Vérification des données reçues.
+	SauceIdValidator.check().then((matched) => {
+		if (matched) {
+			// Récupération de la sauce.
+			Sauce.findOne({ _id: sanitize(req.params.id)}).then(sauce => {
+				if (sauce) {
+					const token = req.headers.authorization.split(' ')[1];
+					const decodedToken = jsonwebtoken.verify(token, process.env.JWT_TOKEN);
+					const userId = decodedToken.userId;
+					// Fonction permettant de savoir le type d'avis que l'utilisateur a posté sur une sauce.
+					async function userReview(sauce, userId) {
+						const isUserLiked = await saucesMiddlewares.isUserHaveReview(sauce.usersLiked, userId);
+						const isUserDisliked = await saucesMiddlewares.isUserHaveReview(sauce.usersDisliked, userId);
+						if (isUserLiked.result == true) {
+							userReview = +1;
+							i = isUserLiked.iterations;
+						} else if (isUserDisliked.result == true) {
+							userReview = -1;
+							i = isUserLiked.iterations;
+						} else {
+							userReview = 0;
+							i = false;
+						}
+						return ({ userReview: userReview, iterations:i });
+					}
+					// On récupère l'avis actuel de l'utilisateur.
+					userReview(sauce, userId).then((userReview) => {
+						const like = req.body.like;
+						switch (userReview.userReview) {
+							case -1:
+								if (like == 0) {
+									saucesMiddlewares.review(sauce.usersDisliked, userId, userReview.iterations, 'delete').then((usersDisliked) => {
+										// Mise à jour de la base de données.
+										saucesMiddlewares.putReview(false, usersDisliked, req.params.id).then(() => {
+											res.status(200).json({ message: "L'avis été pris en compte." });
+										}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
+									}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
+								} else if (like == -1) {
+									res.status(400).json({ error: "L'utilisateur a déjà effectué cette action." });
+								}
+								break;
+							case 0:
+								if (like == +1) {
+									saucesMiddlewares.review(sauce.usersLiked, userId, userReview.iterations, 'put').then((usersLiked) => {
+										// Mise à jour de la base de données.
+										saucesMiddlewares.putReview(usersLiked, false, req.params.id).then(() => {
+											res.status(200).json({ message: "L'avis été pris en compte." });
+										}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
+									}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
+								} else if (like == 0) {
+									res.status(400).json({ error: "L'utilisateur a déjà effectué cette action." });
+								} else if (like == -1) {
+									saucesMiddlewares.review(sauce.usersDisliked, userId, userReview.iterations, 'put').then((usersDisliked) => {
+										// Mise à jour de la base de données.
+										saucesMiddlewares.putReview(false, usersDisliked, req.params.id).then(() => {
+											res.status(200).json({ message: "L'avis été pris en compte." });
+										}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
+									}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
+								}
+								break;
+							case +1:
+								if (like == +1) {
+									res.status(400).json({ error: "L'utilisateur a déjà effectué cette action." });
+								} else if (like == 0) {
+									saucesMiddlewares.review(sauce.usersLiked, userId, userReview.iterations, 'delete').then((usersLiked) => {
+										// Mise à jour de la base de données.
+										saucesMiddlewares.putReview(usersLiked, false, req.params.id).then(() => {
+											res.status(200).json({ message: "L'avis été pris en compte." });
+										}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
+									}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
+								}
+						}
+					}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
+				} else {
+					res.status(400).json({ error: "La sauce indiquée n'existe pas." });
+				}
+			}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
+		} else {
+			res.status(400).json({ error: 'Les données envoyées sont incorrectes.' });
+		}
+	}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
+}

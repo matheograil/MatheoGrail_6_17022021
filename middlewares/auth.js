@@ -1,3 +1,4 @@
+// Modules nécessaires.
 const jsonwebtoken = require('jsonwebtoken');
 
 module.exports = (req, res, next) => {
