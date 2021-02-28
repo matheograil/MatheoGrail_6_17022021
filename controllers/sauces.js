@@ -154,16 +154,7 @@ exports.sauceReview = (req, res, next) => {
 						const like = req.body.like;
 						switch (userReview.userReview) {
 							case -1:
-								if (like == +1) {
-									saucesMiddlewares.review(sauce.usersDisliked, userId, userReview.iterations, 'delete').then((usersDisliked) => {
-										saucesMiddlewares.review(sauce.usersLiked, userId, userReview.iterations, 'put').then((usersLiked) => {
-											// Mise à jour de la base de données.
-											saucesMiddlewares.putReview(usersLiked, usersDisliked, req.params.id).then(() => {
-												res.status(200).json({ message: "L'avis été pris en compte." });
-											}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
-										}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
-									}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
-								} else if (like == 0) {
+								if (like == 0) {
 									saucesMiddlewares.review(sauce.usersDisliked, userId, userReview.iterations, 'delete').then((usersDisliked) => {
 										// Mise à jour de la base de données.
 										saucesMiddlewares.putReview(false, usersDisliked, req.params.id).then(() => {
@@ -201,15 +192,6 @@ exports.sauceReview = (req, res, next) => {
 										// Mise à jour de la base de données.
 										saucesMiddlewares.putReview(usersLiked, false, req.params.id).then(() => {
 											res.status(200).json({ message: "L'avis été pris en compte." });
-										}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
-									}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
-								} else if (like == -1) {
-									saucesMiddlewares.review(sauce.usersLiked, userId, userReview.iterations, 'delete').then((usersLiked) => {
-										saucesMiddlewares.review(sauce.usersDisliked, userId, userReview.iterations, 'put').then((usersDisliked) => {
-											// Mise à jour de la base de données.
-											saucesMiddlewares.putReview(usersLiked, usersDisliked, req.params.id).then(() => {
-												res.status(200).json({ message: "L'avis été pris en compte." });
-											}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
 										}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
 									}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
 								}

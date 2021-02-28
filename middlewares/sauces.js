@@ -22,19 +22,12 @@ module.exports.deleteImage = deleteImage;
 async function isUserHaveReview(array, userId) {
 	return new Promise(function(resolve, reject) {
 		try {
-			let total = 0;
 			for (i in array) {
 				if (array[i] == userId) {
-					let resolve = true;
-					total++;
+					resolve({result: true, iterations: i});
 				}
 			}
-			if (resolve == true) {
-				console.log(total);
-				resolve({result: true, iterations: i});
-			} else {
-				resolve({result: false});
-			}
+			resolve({result: false});
 		} catch(err) {
 			reject(err);
 		}
@@ -49,7 +42,7 @@ function review(array, userId, iterations, action) {
 			if (action == 'put') {
 				array.push(userId);
 			} else if (action == 'delete') {
-				delete array[iterations];
+				array.splice(iterations, 1);
 			}
 			resolve(array);
 		} catch(err) {
@@ -62,30 +55,24 @@ module.exports.review = review;
 // Fonction permettant de mettre à jour la sauce avec l'avis de l'utilisateur.
 function putReview(usersLiked, usersDisliked, sauceId) {
 	return new Promise(function(resolve, reject) {
-		if (usersLiked && usersDisliked) {
-			Sauce.where('_id', sanitize(sauceId)).update({$set: {usersLiked: usersLiked, usersDisliked: usersDisliked}}, function (err) {
+		if (usersLiked) {
+			Sauce.where('_id', sanitize(sauceId)).updateOne({ usersLiked: usersLiked }, function (err) {
 				if (err) {
 					reject(err);
 				} else {
 					resolve("Success");
 				}
 			});
-		} else if (usersDisliked == false) {
-			Sauce.where('_id', sanitize(sauceId)).update({$set: {usersLiked: usersLiked}}, function (err) {
+		} else if (usersDisliked) {
+			Sauce.where('_id', sanitize(sauceId)).updateOne({ usersDisliked: usersDisliked }, function (err) {
 				if (err) {
 					reject(err);
 				} else {
 					resolve("Success");
 				}
 			});
-		} else if (usersLiked == false) {
-			Sauce.where('_id', sanitize(sauceId)).update({$set: {usersDisliked: usersDisliked}}, function (err) {
-				if (err) {
-					reject(err);
-				} else {
-					resolve("Success");
-				}
-			});
+		} else {
+			reject('Error');
 		}
 	});
 };
