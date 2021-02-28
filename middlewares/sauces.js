@@ -20,7 +20,7 @@ async function isUserLiked(usersLiked, userId) {
 		try {
 			for (i in usersLiked) {
 				if (usersLiked[i] == userId) {
-					resolve(true);
+					resolve({result: true, iterations: i});
 				} else {
 					resolve(false);
 				}
@@ -38,7 +38,7 @@ async function isUserDisliked(usersDisliked, userId) {
 		try {
 			for (i in usersDisliked) {
 				if (usersDisliked[i] == userId) {
-					resolve(true);
+					resolve({result: true, iterations: i});
 				} else {
 					resolve(false);
 				}
@@ -50,17 +50,26 @@ async function isUserDisliked(usersDisliked, userId) {
 };
 module.exports.isUserDisliked = isUserDisliked;
 
-// Fonction permettant de savoir le type d'avis que l'utilisateur a posté sur une sauce.
-async function userReview(sauce, userId) {
-	const isUserLiked = await saucesMiddlewares.isUserLiked(sauce.usersLiked, userId);
-	const isUserDisliked = await saucesMiddlewares.isUserDisliked(sauce.usersDisliked, userId);
-	if (isUserLiked == true) {
-		userReview = +1;
-	} else if (isUserDisliked == true) {
-		userReview = -1;
-	} else {
-		userReview = 0;
-	}
-	return userReview;
-}
-module.exports.userReview = userReview;
+// Fonction permettant d'aimer une sauce.
+async function likeSauce(sauce, userId, iterations) {
+	return new Promise(function(resolve, reject) {
+		try {
+			
+		} catch(err) {
+			reject(err);
+		}
+	});
+};
+module.exports.likeSauce = likeSauce;
+
+// Fonction permettant de ne pas aimer une sauce.
+async function dislikeSauce(sauce, userId, iterations) {
+	return new Promise(function(resolve, reject) {
+		try {
+			
+		} catch(err) {
+			reject(err);
+		}
+	});
+};
+module.exports.dislikeSauce = dislikeSauce;

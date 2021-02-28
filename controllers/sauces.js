@@ -133,15 +133,53 @@ exports.sauceReview = (req, res, next) => {
 					const token = req.headers.authorization.split(' ')[1];
 					const decodedToken = jsonwebtoken.verify(token, process.env.JWT_TOKEN);
 					const userId = decodedToken.userId;
-					// On récupère l'avis actuel :
-					// Si userReview = -1 -> l'utilisateur ne l'aime pas.
-					// Si userReview = 0 -> l'utilisateur n'a pas d'avis.
-					// Si userReview = +1 -> l'utilisateur aime déjà.
-					saucesMiddlewares.userReview(sauce, userId).then((userReview) => {
-						switch (userReview) {
+					// Fonction permettant de savoir le type d'avis que l'utilisateur a posté sur une sauce.
+					async function userReview(sauce, userId) {
+						const isUserLiked = await saucesMiddlewares.isUserLiked(sauce.usersLiked, userId);
+						const isUserDisliked = await saucesMiddlewares.isUserDisliked(sauce.usersDisliked, userId);
+						if (isUserLiked.result == true) {
+							userReview = +1;
+							i = isUserLiked.iterations;
+						} else if (isUserDisliked.result == true) {
+							userReview = -1;
+							i = isUserLiked.iterations;
+						} else {
+							userReview = 0;
+							i = false;
+						}
+						return ({ userReview: userReview, iterations:i });
+					}
+					// On récupère l'avis actuel de l'utilisateur.
+					userReview(sauce, userId).then((userReview) => {
+						const like = req.body.like;
+						switch (userReview.userReview) {
 							case -1:
+								if (like == +1) {
+									// Mettre un LIKE.
+								} else if (like == 0) {
+									// Enlever le DISLIKE.
+								} else if (like == -1) {
+									res.status(400).json({ error: "L'utilisateur a déjà effectué cette action." });
+								}
+								break;
 							case 0:
+								if (like == +1) {
+									// Mettre un LIKE.
+								} else if (like == 0) {
+									res.status(400).json({ error: "L'utilisateur a déjà effectué cette action." });
+								} else if (like == -1) {
+									// Mettre un DISLIKE.
+								}
+								break;
 							case +1:
+								if (like == +1) {
+									res.status(400).json({ error: "L'utilisateur a déjà effectué cette action." });
+								} else if (like == 0) {
+									// Enlever le LIKE.
+								} else if (like == -1) {
+									// Mettre un DISLIKE.
+								}
+								break;
 						}
 					}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
 				} else {
