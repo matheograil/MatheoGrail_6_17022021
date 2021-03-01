@@ -84,6 +84,39 @@ exports.postSauce = (req, res, next) => {
 	});
 };
 
+// PUT : api/sauces/:id/like.
+exports.putSauce = (req, res, next) => {
+	// TO DO : si une image est envoyée...
+	// TO DO  : vérification du paramètre ID...
+	const SauceValidator = new Validator(req.body, {
+		name: 'required|string|maxLength:50',
+		manufacturer: 'required|string|maxLength:50',
+		description: 'required|string|maxLength:500',
+		mainPepper: 'required|string|maxLength:250',
+		heat: 'required|integer|between:1,10'
+	});
+	// Vérification des données reçues.
+	SauceValidator.check().then((matched) => {
+		if (matched) {
+			// La sauce existe-t-elle ?
+			const token = req.headers.authorization.split(' ')[1];
+			const decodedToken = jsonwebtoken.verify(token, process.env.JWT_TOKEN);
+			const userId = decodedToken.userId;
+			Sauce.findOne({ _id: sanitize(req.params.id), userId: userId}).then(sauce => {
+				if (!sauce) {
+					res.status(400).json({ error: "La sauce indiquée n'existe pas, ou alors elle ne vous appartient pas." });
+				} else {
+					// TO DO  : mise à jour de la sauce via la base de données...
+				}
+			}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
+		} else {
+			res.status(400).json({ error: 'Les données envoyées sont incorrectes.' });
+		}
+	}).catch(() => {
+		res.status(500).json({ error: "Une erreur s'est produite." });
+	});
+};
+
 // DELETE : api/sauces/:id.
 exports.deleteSauce = (req, res, next) => {
 	const SauceIdValidator = new Validator(req.params, {
@@ -205,4 +238,4 @@ exports.sauceReview = (req, res, next) => {
 			res.status(400).json({ error: 'Les données envoyées sont incorrectes.' });
 		}
 	}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
-}
+};
