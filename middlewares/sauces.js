@@ -5,7 +5,7 @@ const fs = require('fs');
 const sanitize = require('mongo-sanitize');
 
 // Fonction permettant de supprimer une image.
-function deleteImage (filename) {
+function deleteImage(filename) {
 	return new Promise(function(resolve, reject) {
 		fs.unlink(`./images/${filename}`, (err) => {
 			if (err) {
@@ -23,15 +23,15 @@ async function isUserHaveReview(array, userId) {
 	return new Promise(function(resolve, reject) {
 		try {
 			let matched;
-			let total = 0;
+			let totalLikesOrDislikes = 0;
 			for (i in array) {
-				total++;
+				totalLikesOrDislikes++;
 				if (array[i] == userId) {
 					matched = true;
 				}
 			}
-			if (matched == true) {
-				resolve({result: true, iterations: i, total: total});
+			if (matched) {
+				resolve({result: true, iterations: i, totalLikesOrDislikes: totalLikesOrDislikes});
 			} else {
 				resolve({result: false});
 			}
@@ -43,17 +43,17 @@ async function isUserHaveReview(array, userId) {
 module.exports.isUserHaveReview = isUserHaveReview;
 
 // Fonction permettant d'aimer ou non une sauce.
-function review(array, userId, iterations, action, total) {
+function review(array, userId, iterations, action, totalLikesOrDislikes) {
 	return new Promise(function(resolve, reject) {
 		try {
 			if (action == 'put') {
-				total++;
+				totalLikesOrDislikes++;
 				array.push(userId);
 			} else if (action == 'delete') {
+				totalLikesOrDislikes--;
 				array.splice(iterations, 1);
-				total--;
 			}
-			resolve( {array: array, total: total});
+			resolve( {array: array, totalLikesOrDislikes: totalLikesOrDislikes});
 		} catch(err) {
 			reject(err);
 		}
@@ -62,22 +62,22 @@ function review(array, userId, iterations, action, total) {
 module.exports.review = review;
 
 // Fonction permettant de mettre à jour la sauce avec l'avis de l'utilisateur.
-function putReview(usersLiked, usersDisliked, sauceId, total) {
+function putReview(usersLiked, usersDisliked, sauceId, totalLikesOrDislikes) {
 	return new Promise(function(resolve, reject) {
 		if (usersLiked) {
-			Sauce.where('_id', sanitize(sauceId)).updateOne({ usersLiked: usersLiked, likes: total }, function (err) {
+			Sauce.where('_id', sanitize(sauceId)).updateOne({ usersLiked: usersLiked, likes: totalLikesOrDislikes }, function (err) {
 				if (err) {
 					reject(err);
 				} else {
-					resolve("Success");
+					resolve('Success');
 				}
 			});
 		} else if (usersDisliked) {
-			Sauce.where('_id', sanitize(sauceId)).updateOne({ usersDisliked: usersDisliked, dislikes: total }, function (err) {
+			Sauce.where('_id', sanitize(sauceId)).updateOne({ usersDisliked: usersDisliked, dislikes: totalLikesOrDislikes }, function (err) {
 				if (err) {
 					reject(err);
 				} else {
-					resolve("Success");
+					resolve('Success');
 				}
 			});
 		} else {

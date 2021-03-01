@@ -38,9 +38,6 @@ exports.getSauce = (req, res, next) => {
 
 // POST : api/sauces.
 exports.postSauce = (req, res, next) => {
-	//
-	// TO DO : Refaire le système d'upload d'image (car même si une erreur se produit, l'image est quand même uploadé).
-	//
 	const sentData = JSON.parse(req.body.sauce);
 	const SauceValidator = new Validator(sentData, {
 		userId: 'required|regex:[a-zA-z0123456789]|maxLength:50',
@@ -137,20 +134,20 @@ exports.sauceReview = (req, res, next) => {
 					async function userReview(sauce, userId) {
 						const isUserLiked = await saucesMiddlewares.isUserHaveReview(sauce.usersLiked, userId);
 						const isUserDisliked = await saucesMiddlewares.isUserHaveReview(sauce.usersDisliked, userId);
-						if (isUserLiked.result == true) {
+						if (isUserLiked.result) {
 							userReview = +1;
 							i = isUserLiked.iterations;
-							total = isUserLiked.total;
-						} else if (isUserDisliked.result == true) {
+							totalLikesOrDislikes = isUserLiked.totalLikesOrDislikes;
+						} else if (isUserDisliked.result) {
 							userReview = -1;
 							i = isUserDisliked.iterations;
-							total = isUserDisliked.total;
+							totalLikesOrDislikes = isUserDisliked.totalLikesOrDislikes;
 						} else {
 							userReview = 0;
 							i = 0;
-							total = 0;
+							totalLikesOrDislikes = 0;
 						}
-						return ({ userReview: userReview, iterations:i, total: total });
+						return ({ userReview: userReview, iterations:i, totalLikesOrDislikes: totalLikesOrDislikes });
 					}
 					// On récupère l'avis actuel de l'utilisateur.
 					userReview(sauce, userId).then((userReview) => {
@@ -158,9 +155,9 @@ exports.sauceReview = (req, res, next) => {
 						switch (userReview.userReview) {
 							case -1:
 								if (like == 0) {
-									saucesMiddlewares.review(sauce.usersDisliked, userId, userReview.iterations, 'delete', userReview.total).then((usersDisliked) => {
+									saucesMiddlewares.review(sauce.usersDisliked, userId, userReview.iterations, 'delete', userReview.totalLikesOrDislikes).then((usersDisliked) => {
 										// Mise à jour de la base de données.
-										saucesMiddlewares.putReview(false, usersDisliked.array, req.params.id, usersDisliked.total).then(() => {
+										saucesMiddlewares.putReview(false, usersDisliked.array, req.params.id, usersDisliked.totalLikesOrDislikes).then(() => {
 											res.status(200).json({ message: "L'avis été pris en compte." });
 										}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
 									}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
@@ -170,18 +167,18 @@ exports.sauceReview = (req, res, next) => {
 								break;
 							case 0:
 								if (like == +1) {
-									saucesMiddlewares.review(sauce.usersLiked, userId, userReview.iterations, 'put', userReview.total).then((usersLiked) => {
+									saucesMiddlewares.review(sauce.usersLiked, userId, userReview.iterations, 'put', userReview.totalLikesOrDislikes).then((usersLiked) => {
 										// Mise à jour de la base de données.
-										saucesMiddlewares.putReview(usersLiked.array, false, req.params.id, usersLiked.total).then(() => {
+										saucesMiddlewares.putReview(usersLiked.array, false, req.params.id, usersLiked.totalLikesOrDislikes).then(() => {
 											res.status(200).json({ message: "L'avis été pris en compte." });
 										}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
 									}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
 								} else if (like == 0) {
 									res.status(400).json({ error: "L'utilisateur a déjà effectué cette action." });
 								} else if (like == -1) {
-									saucesMiddlewares.review(sauce.usersDisliked, userId, userReview.iterations, 'put', userReview.total).then((usersDisliked) => {
+									saucesMiddlewares.review(sauce.usersDisliked, userId, userReview.iterations, 'put', userReview.totalLikesOrDislikes).then((usersDisliked) => {
 										// Mise à jour de la base de données.
-										saucesMiddlewares.putReview(false, usersDisliked.array, req.params.id, usersDisliked.total).then(() => {
+										saucesMiddlewares.putReview(false, usersDisliked.array, req.params.id, usersDisliked.totalLikesOrDislikes).then(() => {
 											res.status(200).json({ message: "L'avis été pris en compte." });
 										}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
 									}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
@@ -191,9 +188,9 @@ exports.sauceReview = (req, res, next) => {
 								if (like == +1) {
 									res.status(400).json({ error: "L'utilisateur a déjà effectué cette action." });
 								} else if (like == 0) {
-									saucesMiddlewares.review(sauce.usersLiked, userId, userReview.iterations, 'delete', userReview.total).then((usersLiked) => {
+									saucesMiddlewares.review(sauce.usersLiked, userId, userReview.iterations, 'delete', userReview.totalLikesOrDislikes).then((usersLiked) => {
 										// Mise à jour de la base de données.
-										saucesMiddlewares.putReview(usersLiked.array, false, req.params.id, usersLiked.total).then(() => {
+										saucesMiddlewares.putReview(usersLiked.array, false, req.params.id, usersLiked.totalLikesOrDislikes).then(() => {
 											res.status(200).json({ message: "L'avis été pris en compte." });
 										}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
 									}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
