@@ -22,12 +22,19 @@ module.exports.deleteImage = deleteImage;
 async function isUserHaveReview(array, userId) {
 	return new Promise(function(resolve, reject) {
 		try {
+			let matched;
+			let total = 0;
 			for (i in array) {
+				total++;
 				if (array[i] == userId) {
-					resolve({result: true, iterations: i});
+					matched = true;
 				}
 			}
-			resolve({result: false});
+			if (matched == true) {
+				resolve({result: true, iterations: i, total: total});
+			} else {
+				resolve({result: false});
+			}
 		} catch(err) {
 			reject(err);
 		}
@@ -36,15 +43,17 @@ async function isUserHaveReview(array, userId) {
 module.exports.isUserHaveReview = isUserHaveReview;
 
 // Fonction permettant d'aimer ou non une sauce.
-function review(array, userId, iterations, action) {
+function review(array, userId, iterations, action, total) {
 	return new Promise(function(resolve, reject) {
 		try {
 			if (action == 'put') {
+				total++;
 				array.push(userId);
 			} else if (action == 'delete') {
 				array.splice(iterations, 1);
+				total--;
 			}
-			resolve(array);
+			resolve( {array: array, total: total});
 		} catch(err) {
 			reject(err);
 		}
@@ -53,10 +62,10 @@ function review(array, userId, iterations, action) {
 module.exports.review = review;
 
 // Fonction permettant de mettre à jour la sauce avec l'avis de l'utilisateur.
-function putReview(usersLiked, usersDisliked, sauceId) {
+function putReview(usersLiked, usersDisliked, sauceId, total) {
 	return new Promise(function(resolve, reject) {
 		if (usersLiked) {
-			Sauce.where('_id', sanitize(sauceId)).updateOne({ usersLiked: usersLiked }, function (err) {
+			Sauce.where('_id', sanitize(sauceId)).updateOne({ usersLiked: usersLiked, likes: total }, function (err) {
 				if (err) {
 					reject(err);
 				} else {
@@ -64,7 +73,7 @@ function putReview(usersLiked, usersDisliked, sauceId) {
 				}
 			});
 		} else if (usersDisliked) {
-			Sauce.where('_id', sanitize(sauceId)).updateOne({ usersDisliked: usersDisliked }, function (err) {
+			Sauce.where('_id', sanitize(sauceId)).updateOne({ usersDisliked: usersDisliked, dislikes: total }, function (err) {
 				if (err) {
 					reject(err);
 				} else {

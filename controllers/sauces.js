@@ -140,14 +140,17 @@ exports.sauceReview = (req, res, next) => {
 						if (isUserLiked.result == true) {
 							userReview = +1;
 							i = isUserLiked.iterations;
+							total = isUserLiked.total;
 						} else if (isUserDisliked.result == true) {
 							userReview = -1;
-							i = isUserLiked.iterations;
+							i = isUserDisliked.iterations;
+							total = isUserDisliked.total;
 						} else {
 							userReview = 0;
-							i = false;
+							i = 0;
+							total = 0;
 						}
-						return ({ userReview: userReview, iterations:i });
+						return ({ userReview: userReview, iterations:i, total: total });
 					}
 					// On récupère l'avis actuel de l'utilisateur.
 					userReview(sauce, userId).then((userReview) => {
@@ -155,9 +158,9 @@ exports.sauceReview = (req, res, next) => {
 						switch (userReview.userReview) {
 							case -1:
 								if (like == 0) {
-									saucesMiddlewares.review(sauce.usersDisliked, userId, userReview.iterations, 'delete').then((usersDisliked) => {
+									saucesMiddlewares.review(sauce.usersDisliked, userId, userReview.iterations, 'delete', userReview.total).then((usersDisliked) => {
 										// Mise à jour de la base de données.
-										saucesMiddlewares.putReview(false, usersDisliked, req.params.id).then(() => {
+										saucesMiddlewares.putReview(false, usersDisliked.array, req.params.id, usersDisliked.total).then(() => {
 											res.status(200).json({ message: "L'avis été pris en compte." });
 										}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
 									}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
@@ -167,18 +170,18 @@ exports.sauceReview = (req, res, next) => {
 								break;
 							case 0:
 								if (like == +1) {
-									saucesMiddlewares.review(sauce.usersLiked, userId, userReview.iterations, 'put').then((usersLiked) => {
+									saucesMiddlewares.review(sauce.usersLiked, userId, userReview.iterations, 'put', userReview.total).then((usersLiked) => {
 										// Mise à jour de la base de données.
-										saucesMiddlewares.putReview(usersLiked, false, req.params.id).then(() => {
+										saucesMiddlewares.putReview(usersLiked.array, false, req.params.id, usersLiked.total).then(() => {
 											res.status(200).json({ message: "L'avis été pris en compte." });
 										}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
 									}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
 								} else if (like == 0) {
 									res.status(400).json({ error: "L'utilisateur a déjà effectué cette action." });
 								} else if (like == -1) {
-									saucesMiddlewares.review(sauce.usersDisliked, userId, userReview.iterations, 'put').then((usersDisliked) => {
+									saucesMiddlewares.review(sauce.usersDisliked, userId, userReview.iterations, 'put', userReview.total).then((usersDisliked) => {
 										// Mise à jour de la base de données.
-										saucesMiddlewares.putReview(false, usersDisliked, req.params.id).then(() => {
+										saucesMiddlewares.putReview(false, usersDisliked.array, req.params.id, usersDisliked.total).then(() => {
 											res.status(200).json({ message: "L'avis été pris en compte." });
 										}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
 									}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
@@ -188,9 +191,9 @@ exports.sauceReview = (req, res, next) => {
 								if (like == +1) {
 									res.status(400).json({ error: "L'utilisateur a déjà effectué cette action." });
 								} else if (like == 0) {
-									saucesMiddlewares.review(sauce.usersLiked, userId, userReview.iterations, 'delete').then((usersLiked) => {
+									saucesMiddlewares.review(sauce.usersLiked, userId, userReview.iterations, 'delete', userReview.total).then((usersLiked) => {
 										// Mise à jour de la base de données.
-										saucesMiddlewares.putReview(usersLiked, false, req.params.id).then(() => {
+										saucesMiddlewares.putReview(usersLiked.array, false, req.params.id, usersLiked.total).then(() => {
 											res.status(200).json({ message: "L'avis été pris en compte." });
 										}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
 									}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
