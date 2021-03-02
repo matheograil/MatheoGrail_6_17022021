@@ -26,7 +26,7 @@ async function isUserHaveReview(array, userId) {
 			let totalLikesOrDislikes = 0;
 			for (i in array) {
 				totalLikesOrDislikes++;
-				if (array[i] == userId) {
+				if (array[i] === userId) {
 					matched = true;
 				}
 			}
@@ -46,10 +46,10 @@ module.exports.isUserHaveReview = isUserHaveReview;
 function review(array, userId, iterations, action, totalLikesOrDislikes) {
 	return new Promise(function(resolve, reject) {
 		try {
-			if (action == 'put') {
+			if (action === 'put') {
 				totalLikesOrDislikes++;
 				array.push(userId);
-			} else if (action == 'delete') {
+			} else if (action === 'delete') {
 				totalLikesOrDislikes--;
 				array.splice(iterations, 1);
 			}

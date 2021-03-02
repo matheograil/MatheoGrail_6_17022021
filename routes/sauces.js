@@ -14,7 +14,7 @@ router.get('/:id', auth, saucesCtrl.getSauce);
 // POST : api/sauces.
 router.post('/', auth, multer, saucesCtrl.postSauce);
 // PUT : api/sauces/:id.
-router.put('/:id', auth, saucesCtrl.putSauce);
+router.put('/:id', auth, multer, saucesCtrl.putSauce);
 // DELETE : api/sauces/:id.
 router.delete('/:id', auth, saucesCtrl.deleteSauce);
 // POST : api/sauces/:id/like.

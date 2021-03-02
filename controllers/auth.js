@@ -8,7 +8,9 @@ const sanitize = require('mongo-sanitize');
 
 // GET : api/auth/signup.
 exports.register = (req, res, next) => {
-	const UserValidator = new Validator(req.body, {
+	const email = req.body.email;
+	const password = req.body.password;
+	const UserValidator = new Validator({
 		email: 'required|email|maxLength:50',
 		password: 'required|string|lengthBetween:10,100'
 	});
@@ -16,12 +18,12 @@ exports.register = (req, res, next) => {
 	UserValidator.check().then((matched) => {
 		if (matched) {
 			// L'utilisateur existe-t-il ?
-			User.findOne({ email: sanitize(req.body.email) }).then(user => {
+			User.findOne({ email: sanitize(email) }).then(user => {
 				if (!user) {
 					// Chiffrement du mot de passe.
-					bcrypt.hash(req.body.password, 10).then(hash => {
+					bcrypt.hash(password, 10).then(hash => {
 						const user = new User({
-							email: sanitize(req.body.email),
+							email: sanitize(email),
 							password: hash
 						});
 						// Enregistrement dans la base de données.
@@ -41,7 +43,9 @@ exports.register = (req, res, next) => {
 
 // POST : api/auth/login.
 exports.login = (req, res, next) => {
-	const UserValidator = new Validator(req.body, {
+	const email = req.body.email;
+	const password = req.body.password;
+	const UserValidator = new Validator({
 		email: 'required|email|maxLength:50',
 		password: 'required|string|lengthBetween:10,100'
 	});
@@ -49,12 +53,12 @@ exports.login = (req, res, next) => {
 	UserValidator.check().then((matched) => {
 		if (matched) {
 			// L'utilisateur existe-t-il ?
-			User.findOne({ email: sanitize(req.body.email) }).then(user => {
+			User.findOne({ email: sanitize(email) }).then(user => {
 				if (!user) {
 					res.status(400).json({ error: 'Les identifiants sont incorrects.' });
 				} else {
 					// Le mot de passe correspond-t-il ?
-					bcrypt.compare(req.body.password, user.password).then(valid => {
+					bcrypt.compare(password, user.password).then(valid => {
 		  				if (!valid) {
 							res.status(400).json({ error: 'Les identifiants sont incorrects.' });
 		  				} else {
