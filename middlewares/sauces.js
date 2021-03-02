@@ -7,7 +7,7 @@ const sanitize = require('mongo-sanitize');
 // Fonction permettant de supprimer une image.
 function deleteImage(filename) {
 	return new Promise(function(resolve, reject) {
-		fs.unlink(`./images/${filename}`, (err) => {
+		fs.unlink(`./images/${filename}`, err => {
 			if (err) {
 				reject(err);
 			} else {
@@ -67,11 +67,11 @@ function putReview(usersLiked, usersDisliked, sauceId, totalLikesOrDislikes) {
 		if (usersLiked) {
 			Sauce.where('_id', sanitize(sauceId)).updateOne({ usersLiked: usersLiked, likes: totalLikesOrDislikes }).then(() => {
 				resolve('Success');
-			}).catch((err) => reject(err));
+			}).catch(err => reject(err));
 		} else if (usersDisliked) {
 			Sauce.where('_id', sanitize(sauceId)).updateOne({ usersDisliked: usersDisliked, dislikes: totalLikesOrDislikes }).then(() => {
 				resolve('Success');
-			}).catch((err) => reject(err));
+			}).catch(err => reject(err));
 		} else {
 			reject('Error');
 		}

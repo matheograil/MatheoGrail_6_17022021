@@ -9,7 +9,7 @@ const saucesMiddlewares = require('../middlewares/sauces');
 // GET : api/sauces.
 exports.getSauces = (req, res, next) => {
 	// Récupération des données.
-	Sauce.find({}).then((sauces) => {
+	Sauce.find({}).then(sauces => {
 		res.status(200).json(sauces);
 	}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
 };
@@ -21,7 +21,7 @@ exports.getSauce = (req, res, next) => {
 		id: 'required|regex:[a-zA-z0123456789]|maxLength:50'
 	});
 	// Vérification des données reçues.
-	SauceIdValidator.check().then((matched) => {
+	SauceIdValidator.check().then(matched => {
 		if (matched) {
 			// La sauce existe-t-elle ?
 			Sauce.findOne({ _id: sanitize(id) }).then(sauce => {
@@ -52,7 +52,7 @@ exports.postSauce = (req, res, next) => {
 	if (req.file) {
 		const filename = req.file.filename;
 		// Vérification des données reçues.
-		SauceValidator.check().then((matched) => {
+		SauceValidator.check().then(matched => {
 			if (matched) {
 				const sauce = new Sauce({
 					userId: sanitize(sentData.userId),
@@ -108,29 +108,48 @@ exports.putSauce = (req, res, next) => {
 		heat: 'required|integer|between:1,10'
 	});
 	// Vérification des données reçues.
-	SauceValidator.check().then((matched) => {
+	SauceValidator.check().then(matched => {
 		if (matched) {
-			// Une image a-t-elle été selectionnée ?
-			if (req.file) {
-				const filename = req.file.filename;
-				console.log('Une image a été téléchargée.');
-			}
-			else {
-				const token = req.headers.authorization.split(' ')[1];
-				const decodedToken = jsonwebtoken.verify(token, process.env.JWT_TOKEN);
-				const userId = decodedToken.userId;
-				// La sauce existe-t-elle ?
-				Sauce.findOne({ _id: sanitize(id), userId: userId}).then(sauce => {
-					if (!sauce) {
-						res.status(400).json({ error: "La sauce indiquée n'existe pas, ou alors elle ne vous appartient pas." });
-					} else {
-						// Mise à jour de la sauce.
-						Sauce.where('_id', sanitize(id)).updateOne({ name: sanitize(name), manufacturer: sanitize(manufacturer), description: sanitize(description), mainPepper: sanitize(mainPepper), heat: sanitize(heat) })
-							.then(() => res.status(200).json({ message: 'La sauce a été modifiée.' }))
-							.catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
-					}
-				}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
-			}
+			const token = req.headers.authorization.split(' ')[1];
+			const decodedToken = jsonwebtoken.verify(token, process.env.JWT_TOKEN);
+			const userId = decodedToken.userId;
+			// La sauce existe-t-elle ?
+			Sauce.findOne({ _id: sanitize(id), userId: userId}).then(sauce => {
+				if (!sauce) {
+					res.status(400).json({ error: "La sauce indiquée n'existe pas, ou alors elle ne vous appartient pas." });
+				} else if (!sauce && req.file) {
+					//Suppresion de l'image.
+					saucesMiddlewares.deleteImage(req.file.filename)
+						.then(() => res.status(400).json({ error: "La sauce indiquée n'existe pas, ou alors elle ne vous appartient pas." }))
+						.catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
+				} else {
+					// Mise à jour de la sauce.
+					Sauce.where('_id', sanitize(id)).updateOne({ name: sanitize(name), manufacturer: sanitize(manufacturer), description: sanitize(description), mainPepper: sanitize(mainPepper), heat: sanitize(heat) })
+						.then(() => {
+							// Une image a-t-elle été selectionnée ?
+							if (req.file) {
+								const filename = req.file.filename;
+								// Suppresion de l'ancienne image.
+
+								// Mise à jour de la nouvelle image.
+								Sauce.where('_id', sanitize(id)).updateOne({ imageUrl: filename })
+								.catch(() => {
+									//Suppresion de l'image.
+									saucesMiddlewares.deleteImage(req.file.filename);
+									res.status(500).json({ error: "Une erreur s'est produite." });
+								});
+							}
+							res.status(200).json({ message: 'La sauce a été modifiée.' });
+						})
+						.catch(() => {
+							if (req.file) {
+								//Suppresion de l'image.
+								saucesMiddlewares.deleteImage(req.file.filename);
+							} 
+							res.status(500).json({ error: "Une erreur s'est produite." });
+						});
+				}
+			}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
 		} else if (req.file) {
 			//Suppresion de l'image.
 			saucesMiddlewares.deleteImage(req.file.filename)
@@ -155,7 +174,7 @@ exports.deleteSauce = (req, res, next) => {
 		id: 'required|regex:[a-zA-z0123456789]|maxLength:50'
 	});
 	// Vérification des données reçues.
-	SauceIdValidator.check().then((matched) => {
+	SauceIdValidator.check().then(matched => {
 		if (matched) {
 			// La sauce existe-t-elle ?
 			const token = req.headers.authorization.split(' ')[1];
@@ -190,7 +209,7 @@ exports.sauceReview = (req, res, next) => {
 		like: 'required|integer|between:-1,1'
 	});
 	// Vérification des données reçues.
-	SauceValidator.check().then((matched) => {
+	SauceValidator.check().then(matched => {
 		if (matched) {
 			// Récupération de la sauce.
 			Sauce.findOne({ _id: sanitize(id)}).then(sauce => {
@@ -218,11 +237,11 @@ exports.sauceReview = (req, res, next) => {
 						return ({ userReview: userReview, iterations:i, totalLikesOrDislikes: totalLikesOrDislikes });
 					}
 					// On récupère l'avis actuel de l'utilisateur.
-					userReview(sauce, userId).then((userReview) => {
+					userReview(sauce, userId).then(userReview => {
 						switch (userReview.userReview) {
 							case -1:
 								if (like == 0) {
-									saucesMiddlewares.review(sauce.usersDisliked, userId, userReview.iterations, 'delete', userReview.totalLikesOrDislikes).then((usersDisliked) => {
+									saucesMiddlewares.review(sauce.usersDisliked, userId, userReview.iterations, 'delete', userReview.totalLikesOrDislikes).then(usersDisliked => {
 										// Mise à jour de la base de données.
 										saucesMiddlewares.putReview(false, usersDisliked.array, id, usersDisliked.totalLikesOrDislikes).then(() => {
 											res.status(200).json({ message: "L'avis été pris en compte." });
@@ -234,7 +253,7 @@ exports.sauceReview = (req, res, next) => {
 								break;
 							case 0:
 								if (like == +1) {
-									saucesMiddlewares.review(sauce.usersLiked, userId, userReview.iterations, 'put', userReview.totalLikesOrDislikes).then((usersLiked) => {
+									saucesMiddlewares.review(sauce.usersLiked, userId, userReview.iterations, 'put', userReview.totalLikesOrDislikes).then(usersLiked => {
 										// Mise à jour de la base de données.
 										saucesMiddlewares.putReview(usersLiked.array, false, id, usersLiked.totalLikesOrDislikes).then(() => {
 											res.status(200).json({ message: "L'avis été pris en compte." });
@@ -243,7 +262,7 @@ exports.sauceReview = (req, res, next) => {
 								} else if (like == 0) {
 									res.status(400).json({ error: "L'utilisateur a déjà effectué cette action." });
 								} else if (like == -1) {
-									saucesMiddlewares.review(sauce.usersDisliked, userId, userReview.iterations, 'put', userReview.totalLikesOrDislikes).then((usersDisliked) => {
+									saucesMiddlewares.review(sauce.usersDisliked, userId, userReview.iterations, 'put', userReview.totalLikesOrDislikes).then(usersDisliked => {
 										// Mise à jour de la base de données.
 										saucesMiddlewares.putReview(false, usersDisliked.array, id, usersDisliked.totalLikesOrDislikes).then(() => {
 											res.status(200).json({ message: "L'avis été pris en compte." });
@@ -255,7 +274,7 @@ exports.sauceReview = (req, res, next) => {
 								if (like == +1) {
 									res.status(400).json({ error: "L'utilisateur a déjà effectué cette action." });
 								} else if (like == 0) {
-									saucesMiddlewares.review(sauce.usersLiked, userId, userReview.iterations, 'delete', userReview.totalLikesOrDislikes).then((usersLiked) => {
+									saucesMiddlewares.review(sauce.usersLiked, userId, userReview.iterations, 'delete', userReview.totalLikesOrDislikes).then(usersLiked => {
 										// Mise à jour de la base de données.
 										saucesMiddlewares.putReview(usersLiked.array, false, id, usersLiked.totalLikesOrDislikes).then(() => {
 											res.status(200).json({ message: "L'avis été pris en compte." });
