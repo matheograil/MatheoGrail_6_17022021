@@ -7,7 +7,7 @@ const sanitize = require('mongo-sanitize');
 // Fonction permettant de supprimer une image.
 function deleteImage(filename) {
 	return new Promise(function(resolve, reject) {
-		fs.unlink(`./images/${filename}`, (err) => {
+		fs.unlink(`./images/${filename}`, err => {
 			if (err) {
 				reject(err);
 			} else {
@@ -26,7 +26,7 @@ async function isUserHaveReview(array, userId) {
 			let totalLikesOrDislikes = 0;
 			for (i in array) {
 				totalLikesOrDislikes++;
-				if (array[i] == userId) {
+				if (array[i] === userId) {
 					matched = true;
 				}
 			}
@@ -46,10 +46,10 @@ module.exports.isUserHaveReview = isUserHaveReview;
 function review(array, userId, iterations, action, totalLikesOrDislikes) {
 	return new Promise(function(resolve, reject) {
 		try {
-			if (action == 'put') {
+			if (action === 'put') {
 				totalLikesOrDislikes++;
 				array.push(userId);
-			} else if (action == 'delete') {
+			} else if (action === 'delete') {
 				totalLikesOrDislikes--;
 				array.splice(iterations, 1);
 			}
@@ -65,21 +65,13 @@ module.exports.review = review;
 function putReview(usersLiked, usersDisliked, sauceId, totalLikesOrDislikes) {
 	return new Promise(function(resolve, reject) {
 		if (usersLiked) {
-			Sauce.where('_id', sanitize(sauceId)).updateOne({ usersLiked: usersLiked, likes: totalLikesOrDislikes }, function (err) {
-				if (err) {
-					reject(err);
-				} else {
-					resolve('Success');
-				}
-			});
+			Sauce.where('_id', sanitize(sauceId)).updateOne({ usersLiked: usersLiked, likes: totalLikesOrDislikes }).then(() => {
+				resolve('Success');
+			}).catch(err => reject(err));
 		} else if (usersDisliked) {
-			Sauce.where('_id', sanitize(sauceId)).updateOne({ usersDisliked: usersDisliked, dislikes: totalLikesOrDislikes }, function (err) {
-				if (err) {
-					reject(err);
-				} else {
-					resolve('Success');
-				}
-			});
+			Sauce.where('_id', sanitize(sauceId)).updateOne({ usersDisliked: usersDisliked, dislikes: totalLikesOrDislikes }).then(() => {
+				resolve('Success');
+			}).catch(err => reject(err));
 		} else {
 			reject('Error');
 		}
