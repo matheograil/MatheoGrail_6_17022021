@@ -5,6 +5,7 @@ const { Validator } = require('node-input-validator');
 const sanitize = require('mongo-sanitize');
 const jsonwebtoken = require('jsonwebtoken');
 const saucesMiddlewares = require('../middlewares/sauces');
+const { compare } = require('bcrypt');
 
 // GET : api/sauces.
 exports.getSauces = (req, res, next) => {
@@ -129,13 +130,16 @@ exports.putSauce = (req, res, next) => {
 							// Une image a-t-elle été selectionnée ?
 							if (req.file) {
 								const filename = req.file.filename;
+								const oldFilename = sauce.imageUrl.split('/');
 								// Suppresion de l'ancienne image.
+								saucesMiddlewares.deleteImage(oldFilename[4])
+									.catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
 
 								// Mise à jour de la nouvelle image.
-								Sauce.where('_id', sanitize(id)).updateOne({ imageUrl: filename })
+								Sauce.where('_id', sanitize(id)).updateOne({ imageUrl: `${req.protocol}://${req.get('host')}/images/${filename}` })
 								.catch(() => {
 									//Suppresion de l'image.
-									saucesMiddlewares.deleteImage(req.file.filename);
+									saucesMiddlewares.deleteImage(filename);
 									res.status(500).json({ error: "Une erreur s'est produite." });
 								});
 							}
