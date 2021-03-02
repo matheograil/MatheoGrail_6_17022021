@@ -65,12 +65,12 @@ exports.postSauce = (req, res, next) => {
 			});
 			// Enregistrement dans la base de données.
 			sauce.save()
-			.then(() => res.status(200).json({ message: 'La sauce a été enregistrée.' }))
-			.catch(() => { 
-				//Suppresion de l'image.
-				saucesMiddlewares.deleteImage(req.file.filename);
-				res.status(500).json({ error: "Une erreur s'est produite." });
-			});
+				.then(() => res.status(200).json({ message: 'La sauce a été enregistrée.' }))
+				.catch(() => { 
+					//Suppresion de l'image.
+					saucesMiddlewares.deleteImage(req.file.filename);
+					res.status(500).json({ error: "Une erreur s'est produite." });
+				});
 		} else {
 			//Suppresion de l'image.
 			saucesMiddlewares.deleteImage(req.file.filename)
@@ -106,7 +106,10 @@ exports.putSauce = (req, res, next) => {
 				if (!sauce) {
 					res.status(400).json({ error: "La sauce indiquée n'existe pas, ou alors elle ne vous appartient pas." });
 				} else {
-					// TO DO  : mise à jour de la sauce via la base de données...
+					// Mise à jour de la sauce.
+					Sauce.where('_id', sanitize(req.params.id)).updateOne({ name: sanitize(req.body.name), manufacturer: sanitize(req.body.manufacturer), description: sanitize(req.body.description), mainPepper: sanitize(req.body.mainPepper), heat: sanitize(req.body.heat) })
+						.then(() => res.status(200).json({ message: 'La sauce a été modifiée.' }))
+						.catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
 				}
 			}).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
 		} else {

@@ -65,21 +65,13 @@ module.exports.review = review;
 function putReview(usersLiked, usersDisliked, sauceId, totalLikesOrDislikes) {
 	return new Promise(function(resolve, reject) {
 		if (usersLiked) {
-			Sauce.where('_id', sanitize(sauceId)).updateOne({ usersLiked: usersLiked, likes: totalLikesOrDislikes }, function (err) {
-				if (err) {
-					reject(err);
-				} else {
-					resolve('Success');
-				}
-			});
+			Sauce.where('_id', sanitize(sauceId)).updateOne({ usersLiked: usersLiked, likes: totalLikesOrDislikes }).then(() => {
+				resolve('Success');
+			}).catch((err) => reject(err));
 		} else if (usersDisliked) {
-			Sauce.where('_id', sanitize(sauceId)).updateOne({ usersDisliked: usersDisliked, dislikes: totalLikesOrDislikes }, function (err) {
-				if (err) {
-					reject(err);
-				} else {
-					resolve('Success');
-				}
-			});
+			Sauce.where('_id', sanitize(sauceId)).updateOne({ usersDisliked: usersDisliked, dislikes: totalLikesOrDislikes }).then(() => {
+				resolve('Success');
+			}).catch((err) => reject(err));
 		} else {
 			reject('Error');
 		}
