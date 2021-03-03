@@ -94,11 +94,25 @@ exports.postSauce = (req, res, next) => {
 
 // PUT : api/sauces/:id/like.
 exports.putSauce = (req, res, next) => {
-	const name = req.body.name;
-	const manufacturer = req.body.manufacturer;
-	const description = req.body.description;
-	const mainPepper = req.body.mainPepper;
-	const heat = req.body.heat;
+	let name;
+	let manufacturer;
+	let description;
+	let mainPepper;
+	let heat;
+	if (req.file) {
+		const sentData = JSON.parse(req.body.sauce);
+		name = sentData.name;
+		manufacturer = sentData.manufacturer;
+		description = sentData.description;
+		mainPepper = sentData.mainPepper;
+		heat = sentData.heat;
+	} else {
+		name = req.body.name;
+		manufacturer = req.body.manufacturer;
+		description = req.body.description;
+		mainPepper = req.body.mainPepper;
+		heat = req.body.heat;
+	}
 	const id = req.params.id;
 	const SauceValidator = new Validator({
 		id: 'required|regex:[a-zA-z0123456789]|maxLength:50',
@@ -132,18 +146,23 @@ exports.putSauce = (req, res, next) => {
 								const filename = req.file.filename;
 								const oldFilename = sauce.imageUrl.split('/');
 								// Suppresion de l'ancienne image.
-								saucesMiddlewares.deleteImage(oldFilename[4])
-									.catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
-
-								// Mise à jour de la nouvelle image.
-								Sauce.where('_id', sanitize(id)).updateOne({ imageUrl: `${req.protocol}://${req.get('host')}/images/${filename}` })
-								.catch(() => {
+								saucesMiddlewares.deleteImage(oldFilename[4]).then(() => {
+									// Mise à jour de la nouvelle image.
+									Sauce.where('_id', sanitize(id)).updateOne({ imageUrl: `${req.protocol}://${req.get('host')}/images/${filename}` }).then(() => {
+										res.status(200).json({ message: 'La sauce a été modifiée.' });
+									}).catch(() => {
+										//Suppresion de l'image.
+										saucesMiddlewares.deleteImage(filename);
+										res.status(500).json({ error: "Une erreur s'est produite." });
+									});
+								}).catch(() => {
 									//Suppresion de l'image.
 									saucesMiddlewares.deleteImage(filename);
 									res.status(500).json({ error: "Une erreur s'est produite." });
 								});
+							} else {
+								res.status(200).json({ message: 'La sauce a été modifiée.' });
 							}
-							res.status(200).json({ message: 'La sauce a été modifiée.' });
 						})
 						.catch(() => {
 							if (req.file) {
