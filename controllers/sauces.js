@@ -94,13 +94,20 @@ exports.postSauce = (req, res, next) => {
 
 // PUT : api/sauces/:id/like.
 exports.putSauce = (req, res, next) => {
-	const name = req.body.name;
-	const manufacturer = req.body.manufacturer;
-	const description = req.body.description;
-	const mainPepper = req.body.mainPepper;
-	const heat = req.body.heat;
-	const id = req.params.id;
-	const SauceValidator = new Validator({
+	if (req.file) {
+		var sentData = JSON.parse(req.body.sauce);
+		sentData.id = req.params.id;
+	} else {
+		var sentData = new Object();
+		sentData.id = req.params.id;
+		sentData.name = req.body.name;
+		sentData.manufacturer = req.body.manufacturer;
+		sentData.description = req.body.description;
+		sentData.mainPepper = req.body.mainPepper;
+		sentData.heat = req.body.heat;
+	}
+	console.log(sentData);
+	const SauceValidator = new Validator(sentData, {
 		id: 'required|regex:[a-zA-z0123456789]|maxLength:50',
 		name: 'required|string|maxLength:50',
 		manufacturer: 'required|string|maxLength:50',
@@ -115,7 +122,7 @@ exports.putSauce = (req, res, next) => {
 			const decodedToken = jsonwebtoken.verify(token, process.env.JWT_TOKEN);
 			const userId = decodedToken.userId;
 			// La sauce existe-t-elle ?
-			Sauce.findOne({ _id: sanitize(id), userId: userId}).then(sauce => {
+			Sauce.findOne({ _id: sanitize(sentData.id), userId: userId}).then(sauce => {
 				if (!sauce) {
 					res.status(400).json({ error: "La sauce indiquée n'existe pas, ou alors elle ne vous appartient pas." });
 				} else if (!sauce && req.file) {
@@ -125,25 +132,30 @@ exports.putSauce = (req, res, next) => {
 						.catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
 				} else {
 					// Mise à jour de la sauce.
-					Sauce.where('_id', sanitize(id)).updateOne({ name: sanitize(name), manufacturer: sanitize(manufacturer), description: sanitize(description), mainPepper: sanitize(mainPepper), heat: sanitize(heat) })
+					Sauce.where('_id', sanitize(sentData.id)).updateOne({ name: sanitize(sentData.name), manufacturer: sanitize(sentData.manufacturer), description: sanitize(sentData.description), mainPepper: sanitize(sentData.mainPepper), heat: sanitize(sentData.heat) })
 						.then(() => {
 							// Une image a-t-elle été selectionnée ?
 							if (req.file) {
 								const filename = req.file.filename;
 								const oldFilename = sauce.imageUrl.split('/');
 								// Suppresion de l'ancienne image.
-								saucesMiddlewares.deleteImage(oldFilename[4])
-									.catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
-
-								// Mise à jour de la nouvelle image.
-								Sauce.where('_id', sanitize(id)).updateOne({ imageUrl: `${req.protocol}://${req.get('host')}/images/${filename}` })
-								.catch(() => {
+								saucesMiddlewares.deleteImage(oldFilename[4]).then(() => {
+									// Mise à jour de la nouvelle image.
+									Sauce.where('_id', sanitize(sentData.id)).updateOne({ imageUrl: `${req.protocol}://${req.get('host')}/images/${filename}` }).then(() => {
+										res.status(200).json({ message: 'La sauce a été modifiée.' });
+									}).catch(() => {
+										//Suppresion de l'image.
+										saucesMiddlewares.deleteImage(filename);
+										res.status(500).json({ error: "Une erreur s'est produite." });
+									});
+								}).catch(() => {
 									//Suppresion de l'image.
 									saucesMiddlewares.deleteImage(filename);
 									res.status(500).json({ error: "Une erreur s'est produite." });
 								});
+							} else {
+								res.status(200).json({ message: 'La sauce a été modifiée.' });
 							}
-							res.status(200).json({ message: 'La sauce a été modifiée.' });
 						})
 						.catch(() => {
 							if (req.file) {

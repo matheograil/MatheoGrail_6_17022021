@@ -2,10 +2,6 @@
 const express = require('express');
 const app = express();
 
-// Permet de manipuler les données reçues via POST.
-const bodyParser = require('body-parser');
-app.use(bodyParser.json());
-
 // Cross Origin Resource Sharing.
 app.use((req, res, next) => {
 	res.setHeader('Access-Control-Allow-Origin', '*');
@@ -13,6 +9,10 @@ app.use((req, res, next) => {
 	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
 	next();
 });
+
+// Permet de manipuler les données reçues via POST.
+const bodyParser = require('body-parser');
+app.use(bodyParser.json());
 
 // Importation de la configuration.
 require('dotenv').config();
