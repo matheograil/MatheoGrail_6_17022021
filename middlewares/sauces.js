@@ -22,8 +22,8 @@ module.exports.deleteImage = deleteImage;
 async function isUserHaveReview(array, userId) {
 	return new Promise(function(resolve, reject) {
 		try {
-			let matched;
-			let totalLikesOrDislikes = 0;
+			var matched;
+			var totalLikesOrDislikes = 0;
 			for (i in array) {
 				totalLikesOrDislikes++;
 				if (array[i] === userId) {

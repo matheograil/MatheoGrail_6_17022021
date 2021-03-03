@@ -15,7 +15,7 @@ exports.register = (req, res, next) => {
 		password: 'required|string|lengthBetween:10,100'
 	});
 	// Vérification des données reçues.
-	UserValidator.check().then((matched) => {
+	UserValidator.check().then(matched => {
 		if (matched) {
 			// L'utilisateur existe-t-il ?
 			User.findOne({ email: sanitize(email) }).then(user => {
