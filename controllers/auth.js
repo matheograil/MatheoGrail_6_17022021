@@ -24,7 +24,7 @@ exports.register = (req, res, next) => {
                     bcrypt.hash(password, 10).then(hash => {
                         const user = new User({
                             email: sanitize(email),
-                            password: hash
+                            password: sanitize(hash)
                         });
                         // Enregistrement dans la base de données.
                         user.save()

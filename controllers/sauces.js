@@ -61,7 +61,7 @@ exports.postSauce = (req, res, next) => {
                     manufacturer: sanitize(sentData.manufacturer),
                     description: sanitize(sentData.description),
                     mainPepper: sanitize(sentData.mainPepper),
-                    imageUrl: `${req.protocol}://${req.get('host')}/images/${filename}`,
+                    imageUrl: sanitize(`${req.protocol}://${req.get('host')}/images/${filename}`),
                     heat: sanitize(sentData.heat),
                     likes: 0,
                     dislikes: 0,
@@ -139,7 +139,7 @@ exports.putSauce = (req, res, next) => {
                                 // Suppresion de l'ancienne image.
                                 saucesMiddlewares.deleteImage(oldFilename[4]).then(() => {
                                     // Mise à jour de la nouvelle image.
-                                    Sauce.where('_id', sanitize(sentData.id)).updateOne({ imageUrl: `${req.protocol}://${req.get('host')}/images/${filename}` }).then(() => {
+                                    Sauce.where('_id', sanitize(sentData.id)).updateOne({ imageUrl: sanitize(`${req.protocol}://${req.get('host')}/images/${filename}`) }).then(() => {
                                         res.status(200).json({ message: 'La sauce a été modifiée.' });
                                     }).catch(() => {
                                         //Suppresion de l'image.
