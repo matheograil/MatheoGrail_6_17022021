@@ -19,7 +19,7 @@ exports.getSauces = (req, res, next) => {
 exports.getSauce = (req, res, next) => {
     const id = req.params.id;
     const SauceIdValidator = new Validator({
-        id: 'required|regex:[a-zA-z0123456789]|maxLength:50'
+        id: 'required|regex:[a-zA-z0123456789]'
     });
     // Vérification des données reçues.
     SauceIdValidator.check().then(matched => {
@@ -42,7 +42,7 @@ exports.getSauce = (req, res, next) => {
 exports.postSauce = (req, res, next) => {
     const sentData = JSON.parse(req.body.sauce);
     const SauceValidator = new Validator(sentData, {
-        userId: 'required|regex:[a-zA-z0123456789]|maxLength:50',
+        userId: 'required|regex:[a-zA-z0123456789]',
         name: 'required|string|maxLength:50',
         manufacturer: 'required|string|maxLength:50',
         description: 'required|string|maxLength:500',
@@ -99,6 +99,7 @@ exports.putSauce = (req, res, next) => {
         sentData.id = req.params.id;
     } else {
         var sentData = new Object();
+        sentData.userId = req.body.userId;
         sentData.id = req.params.id;
         sentData.name = req.body.name;
         sentData.manufacturer = req.body.manufacturer;
@@ -107,7 +108,8 @@ exports.putSauce = (req, res, next) => {
         sentData.heat = req.body.heat;
     }
     const SauceValidator = new Validator(sentData, {
-        id: 'required|regex:[a-zA-z0123456789]|maxLength:50',
+        id: 'required|regex:[a-zA-z0123456789]',
+        userId: 'required|regex:[a-zA-z0123456789]',
         name: 'required|string|maxLength:50',
         manufacturer: 'required|string|maxLength:50',
         description: 'required|string|maxLength:500',
@@ -117,11 +119,8 @@ exports.putSauce = (req, res, next) => {
     // Vérification des données reçues.
     SauceValidator.check().then(matched => {
         if (matched) {
-            const token = req.headers.authorization.split(' ')[1];
-            const decodedToken = jsonwebtoken.verify(token, process.env.JWT_TOKEN);
-            const userId = decodedToken.userId;
             // La sauce existe-t-elle ?
-            Sauce.findOne({ _id: sanitize(sentData.id), userId: userId}).then(sauce => {
+            Sauce.findOne({ _id: sanitize(sentData.id), userId: sanitize(sentData.userId)}).then(sauce => {
                 if (!sauce) {
                     res.status(400).json({ error: "La sauce indiquée n'existe pas, ou alors elle ne vous appartient pas." });
                 } else if (!sauce && req.file) {
@@ -186,7 +185,7 @@ exports.putSauce = (req, res, next) => {
 exports.deleteSauce = (req, res, next) => {
     const id = req.params.id;
     const SauceIdValidator = new Validator({
-        id: 'required|regex:[a-zA-z0123456789]|maxLength:50'
+        id: 'required|regex:[a-zA-z0123456789]'
     });
     // Vérification des données reçues.
     SauceIdValidator.check().then(matched => {
@@ -195,7 +194,7 @@ exports.deleteSauce = (req, res, next) => {
             const token = req.headers.authorization.split(' ')[1];
             const decodedToken = jsonwebtoken.verify(token, process.env.JWT_TOKEN);
             const userId = decodedToken.userId;
-            Sauce.findOne({ _id: sanitize(id), userId: userId}).then(sauce => {
+            Sauce.findOne({ _id: sanitize(id), userId: sanitize(userId)}).then(sauce => {
                 if (!sauce) {
                     res.status(400).json({ error: "La sauce indiquée n'existe pas, ou alors elle ne vous appartient pas." });
                 } else {
@@ -219,8 +218,10 @@ exports.deleteSauce = (req, res, next) => {
 exports.sauceReview = (req, res, next) => {
     const id = req.params.id;
     const like = req.body.like;
+    const userId = req.body.userId;
     const SauceValidator = new Validator({
-        id: 'required|regex:[a-zA-z0123456789]|maxLength:50',
+        id: 'required|regex:[a-zA-z0123456789]',
+        userId: 'required|regex:[a-zA-z0123456789]',
         like: 'required|integer|between:-1,1'
     });
     // Vérification des données reçues.
@@ -229,13 +230,10 @@ exports.sauceReview = (req, res, next) => {
             // Récupération de la sauce.
             Sauce.findOne({ _id: sanitize(id)}).then(sauce => {
                 if (sauce) {
-                    const token = req.headers.authorization.split(' ')[1];
-                    const decodedToken = jsonwebtoken.verify(token, process.env.JWT_TOKEN);
-                    const userId = decodedToken.userId;
                     // Fonction permettant de savoir le type d'avis que l'utilisateur a posté sur une sauce.
                     async function userReview(sauce, userId) {
-                        const isUserLiked = await saucesMiddlewares.isUserHaveReview(sauce.usersLiked, userId);
-                        const isUserDisliked = await saucesMiddlewares.isUserHaveReview(sauce.usersDisliked, userId);
+                        const isUserLiked = await saucesMiddlewares.doesUserHaveReview(sauce.usersLiked, userId);
+                        const isUserDisliked = await saucesMiddlewares.doesUserHaveReview(sauce.usersDisliked, userId);
                         if (isUserLiked.result) {
                             userReview = +1;
                             i = isUserLiked.iterations;

@@ -19,7 +19,7 @@ function deleteImage(filename) {
 module.exports.deleteImage = deleteImage;
 
 // Fonction permettant de savoir si l'utilisateur a aimé ou non une sauce.
-async function isUserHaveReview(array, userId) {
+async function doesUserHaveReview(array, userId) {
     return new Promise(function(resolve, reject) {
         try {
             let matched;
@@ -40,7 +40,7 @@ async function isUserHaveReview(array, userId) {
         }
     });
 };
-module.exports.isUserHaveReview = isUserHaveReview;
+module.exports.doesUserHaveReview = doesUserHaveReview;
 
 // Fonction permettant d'aimer ou non une sauce.
 function review(array, userId, iterations, action, totalLikesOrDislikes) {
