@@ -160,7 +160,7 @@ exports.putSauce = (req, res, next) => {
                             if (req.file) {
                                 //Suppresion de l'image.
                                 saucesMiddlewares.deleteImage(req.file.filename);
-                            } 
+                            }
                             res.status(500).json({ error: "Une erreur s'est produite." });
                         });
                 }
