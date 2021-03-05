@@ -22,16 +22,9 @@ module.exports.deleteImage = deleteImage;
 async function doesUserHaveReview(array, userId) {
     return new Promise(function(resolve, reject) {
         try {
-            let matched;
-            let totalLikesOrDislikes = 0;
-            for (i in array) {
-                totalLikesOrDislikes++;
-                if (array[i] === userId) {
-                    matched = true;
-                }
-            }
-            if (matched) {
-                resolve({result: true, iterations: i, totalLikesOrDislikes: totalLikesOrDislikes});
+            let i = array.indexOf(userId);
+            if (i != -1) {
+                resolve({result: true, iterations: i, totalLikesOrDislikes: array.length});
             } else {
                 resolve({result: false});
             }
