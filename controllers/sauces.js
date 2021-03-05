@@ -98,14 +98,15 @@ exports.putSauce = (req, res, next) => {
         var sentData = JSON.parse(req.body.sauce);
         sentData.id = req.params.id;
     } else {
-        var sentData = new Object();
-        sentData.userId = req.body.userId;
-        sentData.id = req.params.id;
-        sentData.name = req.body.name;
-        sentData.manufacturer = req.body.manufacturer;
-        sentData.description = req.body.description;
-        sentData.mainPepper = req.body.mainPepper;
-        sentData.heat = req.body.heat;
+        var sentData = {
+            id: req.params.id,
+            userId: req.body.userId,
+            name: req.body.name,
+            manufacturer: req.body.manufacturer,
+            description: req.body.description,
+            mainPepper: req.body.mainPepper,
+            heat: req.body.heat
+        }
     }
     const SauceValidator = new Validator(sentData, {
         id: 'required|regex:[a-zA-z0123456789]',
