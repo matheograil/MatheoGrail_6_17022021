@@ -11,7 +11,7 @@ function deleteImage(filename) {
             if (err) {
                 reject(err);
             } else {
-                resolve("Success");
+                resolve('Success');
             }
         });
     });
@@ -22,13 +22,14 @@ module.exports.deleteImage = deleteImage;
 async function doesUserHaveReview(array, userId) {
     return new Promise(function(resolve, reject) {
         try {
-            if (array.include(userId)) {
+            let i = array.indexOf(userId);
+            if (i != -1) {
                 resolve({result: true, iterations: array.indexOf(userId), totalLikesOrDislikes: array.length});
             } else {
                 resolve({result: false});
             }
-        } catch(err) {
-            reject(err);
+        } catch {
+            reject('Error1');
         }
     });
 };
@@ -36,25 +37,23 @@ module.exports.doesUserHaveReview = doesUserHaveReview;
 
 // Fonction permettant d'aimer ou non une sauce.
 function review(array, userId, iterations, action, totalLikesOrDislikes) {
-    return new Promise(function(resolve, reject) {
-        try {
-            if (action === 'put') {
-                totalLikesOrDislikes++;
-                array.push(userId);
-            } else if (action === 'delete') {
-                totalLikesOrDislikes--;
-                array.splice(iterations, 1);
-            }
-            resolve( {array: array, totalLikesOrDislikes: totalLikesOrDislikes});
-        } catch(err) {
-            reject(err);
+    try {
+        if (action === 'put') {
+            totalLikesOrDislikes++;
+            array.push(userId);
+        } else if (action === 'delete') {
+            totalLikesOrDislikes--;
+            array.splice(iterations, 1);
         }
-    });
+        return({array: array, totalLikesOrDislikes: totalLikesOrDislikes});
+    } catch {
+        return('Error');
+    }
 };
 module.exports.review = review;
 
 // Fonction permettant de mettre à jour la sauce avec l'avis de l'utilisateur.
-function putReview(usersLiked, usersDisliked, sauceId, totalLikesOrDislikes) {
+async function putReview(usersLiked, usersDisliked, sauceId, totalLikesOrDislikes) {
     return new Promise(function(resolve, reject) {
         if (usersLiked) {
             Sauce.where('_id', sanitize(sauceId)).updateOne({ usersLiked: sanitize(usersLiked), likes: sanitize(totalLikesOrDislikes) }).then(() => {

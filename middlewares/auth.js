@@ -13,5 +13,5 @@ module.exports = (req, res, next) => {
         }
     } catch {
         res.status(401).json({ error: "L'utilisateur doit être connecté." });
-      }
+    }
 };
