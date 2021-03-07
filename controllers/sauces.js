@@ -234,9 +234,7 @@ exports.sauceReview = (req, res, next) => {
                     // Fonction permettant de savoir le type d'avis que l'utilisateur a posté sur une sauce.
                     async function userReview(sauce, userId) {
                         const doesUserLiked = await saucesMiddlewares.doesUserHaveReview(sauce.usersLiked, userId);
-                        console.log(doesUserLiked.totalLikesOrDislikes);
                         const doesUserDisliked = await saucesMiddlewares.doesUserHaveReview(sauce.usersDisliked, userId);
-                        console.log(doesUserDisliked.totalLikesOrDislikes);
                         if (doesUserLiked.result) {
                             userReview = +1;
                             i = doesUserLiked.iterations;
@@ -248,7 +246,7 @@ exports.sauceReview = (req, res, next) => {
                         } else {
                             userReview = 0;
                             i = 0;
-                            totalLikesOrDislikes = 0;
+                            totalLikesOrDislikes = { likes: doesUserLiked.totalLikesOrDislikes, dislikes : doesUserDisliked.totalLikesOrDislikes};
                         }
                         return({ userReview: userReview, iterations:i, totalLikesOrDislikes: totalLikesOrDislikes });
                     }
@@ -275,7 +273,7 @@ exports.sauceReview = (req, res, next) => {
                             // L'utilisateur n'a pas encore d'avis.
                             case 0:
                                 if (like == +1) {
-                                    const review = saucesMiddlewares.review(sauce.usersLiked, userId, userReview.iterations, 'put', userReview.totalLikesOrDislikes);
+                                    const review = saucesMiddlewares.review(sauce.usersLiked, userId, userReview.iterations, 'put', userReview.totalLikesOrDislikes.likes);
                                     if (review !== 'Error') {
                                         // Mise à jour de la base de données.
                                         saucesMiddlewares.putReview(review.array, false, id, review.totalLikesOrDislikes).then(() => {
@@ -285,7 +283,7 @@ exports.sauceReview = (req, res, next) => {
                                         res.status(500).json({ error: "Une erreur s'est produite." });
                                     }
                                 } else if (like == -1) {
-                                    const review = saucesMiddlewares.review(sauce.usersDisliked, userId, userReview.iterations, 'put', userReview.totalLikesOrDislikes);
+                                    const review = saucesMiddlewares.review(sauce.usersDisliked, userId, userReview.iterations, 'put', userReview.totalLikesOrDislikes.dislikes);
                                     if (review !== 'Error') {
                                         // Mise à jour de la base de données.
                                         saucesMiddlewares.putReview(false, review.array, id, review.totalLikesOrDislikes).then(() => {
