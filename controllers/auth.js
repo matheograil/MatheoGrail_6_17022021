@@ -10,7 +10,7 @@ const sanitize = require('mongo-sanitize');
 exports.register = (req, res, next) => {
     const email = req.body.email;
     const password = req.body.password;
-    const UserValidator = new Validator({
+    const UserValidator = new Validator({ email: email, password: password }, {
         email: 'required|email|maxLength:50',
         password: 'required|string|lengthBetween:10,100'
     });
@@ -28,8 +28,8 @@ exports.register = (req, res, next) => {
                         });
                         // Enregistrement dans la base de données.
                         user.save()
-                            .then(() => res.status(200).json({ message: "L'utilisateur a été enregistré." }))
-                            .catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
+                        .then(() => res.status(200).json({ message: "L'utilisateur a été enregistré." }))
+                        .catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
                     }).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
                 } else {
                     res.status(400).json({ error: 'Cette adresse électronique est déjà utilisée.' });
@@ -45,7 +45,7 @@ exports.register = (req, res, next) => {
 exports.login = (req, res, next) => {
     const email = req.body.email;
     const password = req.body.password;
-    const UserValidator = new Validator({
+    const UserValidator = new Validator({ email: email, password: password }, {
         email: 'required|email|maxLength:50',
         password: 'required|string|lengthBetween:10,100'
     });
@@ -59,9 +59,9 @@ exports.login = (req, res, next) => {
                 } else {
                     // Le mot de passe correspond-t-il ?
                     bcrypt.compare(password, user.password).then(valid => {
-                          if (!valid) {
+                        if (!valid) {
                             res.status(400).json({ error: 'Les identifiants sont incorrects.' });
-                          } else {
+                        } else {
                             // Enregistrement du jeton d'accès.
                             res.status(200).json({
                                 userId: user._id,

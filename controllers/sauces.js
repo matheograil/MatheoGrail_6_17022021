@@ -10,7 +10,7 @@ const { compare } = require('bcrypt');
 // GET : api/sauces.
 exports.getSauces = (req, res, next) => {
     // Récupération des données.
-    Sauce.find({}).then(sauces => {
+    Sauce.find().then(sauces => {
         res.status(200).json(sauces);
     }).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
 };
@@ -18,7 +18,7 @@ exports.getSauces = (req, res, next) => {
 // GET : api/sauces/:id.
 exports.getSauce = (req, res, next) => {
     const id = req.params.id;
-    const SauceIdValidator = new Validator({
+    const SauceIdValidator = new Validator({ id: id }, {
         id: 'required|regex:[a-zA-z0123456789]'
     });
     // Vérification des données reçues.
@@ -70,17 +70,17 @@ exports.postSauce = (req, res, next) => {
                 });
                 // Enregistrement dans la base de données.
                 sauce.save()
-                    .then(() => res.status(200).json({ message: 'La sauce a été enregistrée.' }))
-                    .catch(() => { 
-                        //Suppresion de l'image.
-                        saucesMiddlewares.deleteImage(filename);
-                        res.status(500).json({ error: "Une erreur s'est produite." });
-                    });
+                .then(() => res.status(200).json({ message: 'La sauce a été enregistrée.' }))
+                .catch(() => { 
+                     //Suppresion de l'image.
+                    saucesMiddlewares.deleteImage(filename);
+                    res.status(500).json({ error: "Une erreur s'est produite." });
+                });
             } else {
                 //Suppresion de l'image.
                 saucesMiddlewares.deleteImage(filename)
-                    .then(() => res.status(400).json({ error: 'Les données envoyées sont incorrectes.' }))
-                    .catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
+                .then(() => res.status(400).json({ error: 'Les données envoyées sont incorrectes.' }))
+                .catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
             }
         }).catch(() => {
             //Suppresion de l'image.
@@ -121,7 +121,7 @@ exports.putSauce = (req, res, next) => {
     SauceValidator.check().then(matched => {
         if (matched) {
             // La sauce existe-t-elle ?
-            Sauce.findOne({ _id: sanitize(sentData.id), userId: sanitize(sentData.userId)}).then(sauce => {
+            Sauce.findOne({ _id: sanitize(sentData.id), userId: sanitize(sentData.userId) }).then(sauce => {
                 if (!sauce) {
                     res.status(400).json({ error: "La sauce indiquée n'existe pas, ou alors elle ne vous appartient pas." });
                 } else if (!sauce && req.file) {
@@ -185,7 +185,7 @@ exports.putSauce = (req, res, next) => {
 // DELETE : api/sauces/:id.
 exports.deleteSauce = (req, res, next) => {
     const id = req.params.id;
-    const SauceIdValidator = new Validator({
+    const SauceIdValidator = new Validator({ id: id }, {
         id: 'required|regex:[a-zA-z0123456789]'
     });
     // Vérification des données reçues.
@@ -195,7 +195,7 @@ exports.deleteSauce = (req, res, next) => {
             const token = req.headers.authorization.split(' ')[1];
             const decodedToken = jsonwebtoken.verify(token, process.env.JWT_TOKEN);
             const userId = decodedToken.userId;
-            Sauce.findOne({ _id: sanitize(id), userId: sanitize(userId)}).then(sauce => {
+            Sauce.findOne({ _id: sanitize(id), userId: sanitize(userId) }).then(sauce => {
                 if (!sauce) {
                     res.status(400).json({ error: "La sauce indiquée n'existe pas, ou alors elle ne vous appartient pas." });
                 } else {
@@ -220,7 +220,7 @@ exports.sauceReview = (req, res, next) => {
     const id = req.params.id;
     const like = req.body.like;
     const userId = req.body.userId;
-    const SauceValidator = new Validator({
+    const SauceValidator = new Validator({ id: id, like: like, userId: userId }, {
         id: 'required|regex:[a-zA-z0123456789]',
         userId: 'required|regex:[a-zA-z0123456789]',
         like: 'required|integer|between:-1,1'
@@ -229,7 +229,7 @@ exports.sauceReview = (req, res, next) => {
     SauceValidator.check().then(matched => {
         if (matched) {
             // Récupération de la sauce.
-            Sauce.findOne({ _id: sanitize(id)}).then(sauce => {
+            Sauce.findOne({ _id: sanitize(id) }).then(sauce => {
                 if (sauce) {
                     // Fonction permettant de savoir le type d'avis que l'utilisateur a posté sur une sauce.
                     async function userReview(sauce, userId) {
