@@ -233,16 +233,18 @@ exports.sauceReview = (req, res, next) => {
                 if (sauce) {
                     // Fonction permettant de savoir le type d'avis que l'utilisateur a posté sur une sauce.
                     async function userReview(sauce, userId) {
-                        const isUserLiked = await saucesMiddlewares.doesUserHaveReview(sauce.usersLiked, userId);
-                        const isUserDisliked = await saucesMiddlewares.doesUserHaveReview(sauce.usersDisliked, userId);
-                        if (isUserLiked.result) {
+                        const doesUserLiked = await saucesMiddlewares.doesUserHaveReview(sauce.usersLiked, userId);
+                        console.log(doesUserLiked.totalLikesOrDislikes);
+                        const doesUserDisliked = await saucesMiddlewares.doesUserHaveReview(sauce.usersDisliked, userId);
+                        console.log(doesUserDisliked.totalLikesOrDislikes);
+                        if (doesUserLiked.result) {
                             userReview = +1;
-                            i = isUserLiked.iterations;
-                            totalLikesOrDislikes = isUserLiked.totalLikesOrDislikes;
+                            i = doesUserLiked.iterations;
+                            totalLikesOrDislikes = doesUserLiked.totalLikesOrDislikes;
                         } else if (isUserDisliked.result) {
                             userReview = -1;
-                            i = isUserDisliked.iterations;
-                            totalLikesOrDislikes = isUserDisliked.totalLikesOrDislikes;
+                            i = doesUserDisliked.iterations;
+                            totalLikesOrDislikes = doesUserDisliked.totalLikesOrDislikes;
                         } else {
                             userReview = 0;
                             i = 0;

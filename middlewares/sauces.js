@@ -29,7 +29,7 @@ async function doesUserHaveReview(array, userId) {
                 resolve({result: false});
             }
         } catch {
-            reject('Error1');
+            reject('Error');
         }
     });
 };
