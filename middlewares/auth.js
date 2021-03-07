@@ -7,10 +7,9 @@ module.exports = (req, res, next) => {
         const decodedToken = jsonwebtoken.verify(token, process.env.JWT_TOKEN);
         const userId = decodedToken.userId;
         if (req.body.userId && req.body.userId !== userId) {
-            res.status(400).json({ error: 'Les identifiants sont incorrects.' });
-        } else {
-            next();
+            return res.status(400).json({ error: 'Les identifiants sont incorrects.' });
         }
+        next();
     } catch {
         res.status(401).json({ error: "L'utilisateur doit être connecté." });
     }
