@@ -8,7 +8,7 @@ const sanitize = require('mongo-sanitize');
 async function deleteImage(filename) {
     fs.unlink(`./images/${filename}`, err => {
         if (err) {
-            return(err);
+            return('Error');
         }
         return('Success');
     });
@@ -47,20 +47,20 @@ module.exports.review = review;
 
 // Fonction permettant de mettre à jour la sauce avec l'avis de l'utilisateur.
 async function putReview(usersLiked, usersDisliked, sauceId, totalLikesOrDislikes) {
-        if (usersLiked) {
-            Sauce.where('_id', sanitize(sauceId)).updateOne({ usersLiked: sanitize(usersLiked), likes: sanitize(totalLikesOrDislikes) }).then(() => {
-                return('Success');
-            }).catch(err => {
-                return(err);
-            });
-        } else if (usersDisliked) {
-            Sauce.where('_id', sanitize(sauceId)).updateOne({ usersDisliked: sanitize(usersDisliked), dislikes: sanitize(totalLikesOrDislikes) }).then(() => {
-                return('Success');
-            }).catch(err => {
-                return(err);
-            });
-        } else {
+    if (usersLiked) {
+        Sauce.where('_id', sanitize(sauceId)).updateOne({ usersLiked: sanitize(usersLiked), likes: sanitize(totalLikesOrDislikes) }).then(() => {
+            return('Success');
+        }).catch(err => {
             return('Error');
-        }
+        });
+    } else if (usersDisliked) {
+        Sauce.where('_id', sanitize(sauceId)).updateOne({ usersDisliked: sanitize(usersDisliked), dislikes: sanitize(totalLikesOrDislikes) }).then(() => {
+            return('Success');
+        }).catch(err => {
+            return('Error');
+        });
+    } else {
+        return('Error');
+    }
 };
 module.exports.putReview = putReview;
