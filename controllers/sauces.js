@@ -10,7 +10,7 @@ const { compare } = require('bcrypt');
 // GET : api/sauces.
 exports.getSauces = (req, res, next) => {
     // Récupération des données.
-    Sauce.find({}).then(sauces => {
+    Sauce.find().then(sauces => {
         res.status(200).json(sauces);
     }).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
 };
@@ -121,7 +121,7 @@ exports.putSauce = (req, res, next) => {
     SauceValidator.check().then(matched => {
         if (matched) {
             // La sauce existe-t-elle ?
-            Sauce.findOne({ _id: sanitize(sentData.id), userId: sanitize(sentData.userId)}).then(sauce => {
+            Sauce.findOne({ _id: sanitize(sentData.id), userId: sanitize(sentData.userId) }).then(sauce => {
                 if (!sauce) {
                     res.status(400).json({ error: "La sauce indiquée n'existe pas, ou alors elle ne vous appartient pas." });
                 } else if (!sauce && req.file) {
@@ -195,7 +195,7 @@ exports.deleteSauce = (req, res, next) => {
             const token = req.headers.authorization.split(' ')[1];
             const decodedToken = jsonwebtoken.verify(token, process.env.JWT_TOKEN);
             const userId = decodedToken.userId;
-            Sauce.findOne({ _id: sanitize(id), userId: sanitize(userId)}).then(sauce => {
+            Sauce.findOne({ _id: sanitize(id), userId: sanitize(userId) }).then(sauce => {
                 if (!sauce) {
                     res.status(400).json({ error: "La sauce indiquée n'existe pas, ou alors elle ne vous appartient pas." });
                 } else {
@@ -229,7 +229,7 @@ exports.sauceReview = (req, res, next) => {
     SauceValidator.check().then(matched => {
         if (matched) {
             // Récupération de la sauce.
-            Sauce.findOne({ _id: sanitize(id)}).then(sauce => {
+            Sauce.findOne({ _id: sanitize(id) }).then(sauce => {
                 if (sauce) {
                     // Fonction permettant de savoir le type d'avis que l'utilisateur a posté sur une sauce.
                     async function userReview(sauce, userId) {
