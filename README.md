@@ -27,3 +27,6 @@ Dans le dossier de l'application, faire les commandes suivantes :
 
 * `npm install`
 * `nodemon start`
+
+Si tout s'est bien passé, un message dans la console devrait apparaître :
+> Connexion à la base de données réussie.
