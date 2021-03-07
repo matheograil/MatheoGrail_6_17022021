@@ -241,7 +241,7 @@ exports.sauceReview = (req, res, next) => {
                             userReview = +1;
                             i = doesUserLiked.iterations;
                             totalLikesOrDislikes = doesUserLiked.totalLikesOrDislikes;
-                        } else if (isUserDisliked.result) {
+                        } else if (doesUserDisliked.result) {
                             userReview = -1;
                             i = doesUserDisliked.iterations;
                             totalLikesOrDislikes = doesUserDisliked.totalLikesOrDislikes;
@@ -314,7 +314,7 @@ exports.sauceReview = (req, res, next) => {
                                     res.status(400).json({ error: "L'utilisateur a déjà effectué cette action." });
                                 }
                         }
-                    }).catch((err) => res.status(500).json({ error: err}));
+                    }).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
                 } else {
                     res.status(400).json({ error: "La sauce indiquée n'existe pas." });
                 }
