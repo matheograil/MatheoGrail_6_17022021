@@ -24,9 +24,8 @@ const storage = multer.diskStorage({
 const imageFilter = function(req, file, callback) {
     if (!file.originalname.match(/\.(jpg|JPG|jpeg|JPEG|png|PNG)$/)) {
         callback(null, false);
-    } else {
-        callback(null, true);
     }
+    return callback(null, true);
 };
 
 module.exports = multer({ storage: storage, fileFilter: imageFilter, limits : { fileSize : 5000000 } }).single("image");

@@ -72,7 +72,7 @@ exports.postSauce = (req, res, next) => {
                 sauce.save()
                 .then(() => res.status(200).json({ message: 'La sauce a été enregistrée.' }))
                 .catch(() => { 
-                     //Suppresion de l'image.
+                    //Suppresion de l'image.
                     saucesMiddlewares.deleteImage(filename);
                     res.status(500).json({ error: "Une erreur s'est produite." });
                 });
@@ -246,7 +246,7 @@ exports.sauceReview = (req, res, next) => {
                         } else {
                             userReview = 0;
                             i = 0;
-                            totalLikesOrDislikes = { likes: doesUserLiked.totalLikesOrDislikes, dislikes : doesUserDisliked.totalLikesOrDislikes};
+                            totalLikesOrDislikes = { likes: doesUserLiked.totalLikesOrDislikes, dislikes : doesUserDisliked.totalLikesOrDislikes };
                         }
                         return({ userReview: userReview, iterations:i, totalLikesOrDislikes: totalLikesOrDislikes });
                     }
