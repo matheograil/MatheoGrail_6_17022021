@@ -59,8 +59,7 @@ async function putReview(usersLiked, usersDisliked, sauceId, totalLikesOrDislike
         }).catch(err => {
             return('Error');
         });
-    } else {
-        return('Error');
     }
+    return('Error');
 };
 module.exports.putReview = putReview;
