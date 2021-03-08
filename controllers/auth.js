@@ -28,8 +28,8 @@ exports.register = (req, res, next) => {
                         });
                         // Enregistrement dans la base de données.
                         user.save()
-                        .then(() => res.status(200).json({ message: "L'utilisateur a été enregistré." }))
-                        .catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
+                            .then(() => res.status(200).json({ message: "L'utilisateur a été enregistré." }))
+                            .catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
                     }).catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
                 } else {
                     res.status(400).json({ error: 'Cette adresse électronique est déjà utilisée.' });

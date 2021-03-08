@@ -5,7 +5,6 @@ const { Validator } = require('node-input-validator');
 const sanitize = require('mongo-sanitize');
 const jsonwebtoken = require('jsonwebtoken');
 const saucesMiddlewares = require('../middlewares/sauces');
-const { compare } = require('bcrypt');
 
 // GET : api/sauces.
 exports.getSauces = (req, res, next) => {
@@ -70,17 +69,17 @@ exports.postSauce = (req, res, next) => {
                 });
                 // Enregistrement dans la base de données.
                 sauce.save()
-                .then(() => res.status(200).json({ message: 'La sauce a été enregistrée.' }))
-                .catch(() => { 
-                    //Suppresion de l'image.
-                    saucesMiddlewares.deleteImage(filename);
-                    res.status(500).json({ error: "Une erreur s'est produite." });
-                });
+                    .then(() => res.status(200).json({ message: 'La sauce a été enregistrée.' }))
+                    .catch(() => { 
+                        //Suppresion de l'image.
+                        saucesMiddlewares.deleteImage(filename);
+                        res.status(500).json({ error: "Une erreur s'est produite." });
+                    });
             } else {
                 //Suppresion de l'image.
                 saucesMiddlewares.deleteImage(filename)
-                .then(() => res.status(400).json({ error: 'Les données envoyées sont incorrectes.' }))
-                .catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
+                    .then(() => res.status(400).json({ error: 'Les données envoyées sont incorrectes.' }))
+                    .catch(() => res.status(500).json({ error: "Une erreur s'est produite." }));
             }
         }).catch(() => {
             //Suppresion de l'image.
@@ -92,7 +91,7 @@ exports.postSauce = (req, res, next) => {
     }
 };
 
-// PUT : api/sauces/:id/like.
+// PUT : api/sauces/:id.
 exports.putSauce = (req, res, next) => {
     if (req.file) {
         var sentData = JSON.parse(req.body.sauce);
