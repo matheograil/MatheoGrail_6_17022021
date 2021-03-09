@@ -271,7 +271,7 @@ exports.sauceReview = (req, res, next) => {
                                 break;
                             // L'utilisateur n'a pas encore d'avis.
                             case 0:
-                                if (like == +1) {
+                                if (like === +1) {
                                     const review = saucesMiddlewares.review(sauce.usersLiked, userId, userReview.iterations, 'put', userReview.totalLikesOrDislikes.likes);
                                     if (review !== 'Error') {
                                         // Mise à jour de la base de données.
@@ -281,7 +281,7 @@ exports.sauceReview = (req, res, next) => {
                                     } else {
                                         res.status(500).json({ error: "Une erreur s'est produite." });
                                     }
-                                } else if (like == -1) {
+                                } else if (like === -1) {
                                     const review = saucesMiddlewares.review(sauce.usersDisliked, userId, userReview.iterations, 'put', userReview.totalLikesOrDislikes.dislikes);
                                     if (review !== 'Error') {
                                         // Mise à jour de la base de données.
@@ -297,7 +297,7 @@ exports.sauceReview = (req, res, next) => {
                                 break;
                             // L'utilisateur aime la sauce.
                             case +1:
-                                if (like == 0) {
+                                if (like === 0) {
                                     const review = saucesMiddlewares.review(sauce.usersLiked, userId, userReview.iterations, 'delete', userReview.totalLikesOrDislikes);
                                     if (review !== 'Error') {
                                         // Mise à jour de la base de données.
