@@ -18,7 +18,7 @@ module.exports.deleteImage = deleteImage;
 // Fonction permettant de savoir si l'utilisateur a aimé ou non une sauce.
 async function doesUserHaveReview(array, userId) {
     try {
-        if (array.indexOf(userId) != -1) {
+        if (array.indexOf(userId) !== -1) {
             return({result: true, iterations: array.indexOf(userId), totalLikesOrDislikes: array.length});
         }
         return({result: false, totalLikesOrDislikes: array.length})
@@ -50,13 +50,13 @@ async function putReview(usersLiked, usersDisliked, sauceId, totalLikesOrDislike
     if (usersLiked) {
         Sauce.where('_id', sanitize(sauceId)).updateOne({ usersLiked: sanitize(usersLiked), likes: sanitize(totalLikesOrDislikes) }).then(() => {
             return('Success');
-        }).catch(err => {
+        }).catch(() => {
             return('Error');
         });
     } else if (usersDisliked) {
         Sauce.where('_id', sanitize(sauceId)).updateOne({ usersDisliked: sanitize(usersDisliked), dislikes: sanitize(totalLikesOrDislikes) }).then(() => {
             return('Success');
-        }).catch(err => {
+        }).catch(() => {
             return('Error');
         });
     }
