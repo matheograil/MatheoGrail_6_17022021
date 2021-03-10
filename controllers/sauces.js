@@ -70,7 +70,7 @@ exports.postSauce = (req, res, next) => {
                 // Enregistrement dans la base de données.
                 sauce.save()
                     .then(() => res.status(200).json({ message: 'La sauce a été enregistrée.' }))
-                    .catch(() => { 
+                    .catch(() => {
                         //Suppresion de l'image.
                         saucesMiddlewares.deleteImage(filename);
                         res.status(500).json({ error: "Une erreur s'est produite." });
@@ -248,14 +248,14 @@ exports.sauceReview = (req, res, next) => {
                             totalLikesOrDislikes = { likes: doesUserLiked.totalLikesOrDislikes, dislikes : doesUserDisliked.totalLikesOrDislikes };
                         }
                         return({ userReview: userReview, iterations:i, totalLikesOrDislikes: totalLikesOrDislikes });
-                    }
+                    };
                     // On récupère l'avis actuel de l'utilisateur.
                     userReview(sauce, userId).then(userReview => {
                         switch (userReview.userReview) {
                             // L'utilisateur n'aime pas sauce.
                             case -1:
                                 // Il souhaite annuler son avis.
-                                if (like == 0) {
+                                if (like === 0) {
                                     const review = saucesMiddlewares.review(sauce.usersDisliked, userId, userReview.iterations, 'delete', userReview.totalLikesOrDislikes);
                                     if (review !== 'Error') {
                                         // Mise à jour de la base de données.
