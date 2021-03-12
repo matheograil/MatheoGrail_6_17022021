@@ -9,7 +9,7 @@ Construisez une API sécurisée pour une application d'avis gastronomiques.
 
 ## Configuration
 
-⚠️ La technologie utilisée pour la base de données est **NoSQL**.
+⚠️ La technologie utilisée pour la base de données est _NoSQL_.
 
 * Plusieurs paramètres sont à modifier dans le fichier `.env` pour le bon fonctionnement de l'application :
 
