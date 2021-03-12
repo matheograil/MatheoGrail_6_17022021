@@ -14,10 +14,10 @@ Construisez une API sécurisée pour une application d'avis gastronomiques.
 | Nom  | Description |
 | --- | --- |
 | **JWT_TOKEN**  | Clé de chiffrement utilisée pour les sessions |
-| **DB_HOST** | Adresse IP/nom de domaine de la base de données |
-| **DB_USER** | Utilisateur de la base de données |
-| **DB_DATABASE** | Nom de la base de données |
-| **DB_PASSWORD** | Mot de passe de la base de données |
+| **DB_HOST** | Adresse IP/nom de domaine de la base de données (NoSQL) |
+| **DB_USER** | Utilisateur de la base de données (NoSQL) |
+| **DB_DATABASE** | Nom de la base de données (NoSQL) |
+| **DB_PASSWORD** | Mot de passe de la base de données (NoSQL)|
 
 * Ce projet nécessite également la mise en place du _front-end_ : https://github.com/OpenClassrooms-Student-Center/dwj-projet6.git, ainsi que de l'installation de _Node.js_ et _NPM (avec nodemon)_.
 
