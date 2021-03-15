@@ -7,7 +7,7 @@ const jsonwebtoken = require('jsonwebtoken');
 const saucesMiddlewares = require('../middlewares/sauces');
 
 // GET : api/sauces.
-exports.getSauces = (req, res, next) => {
+exports.getSauces = (req, res) => {
     // Récupération des données.
     Sauce.find().then(sauces => {
         res.status(200).json(sauces);
@@ -15,7 +15,7 @@ exports.getSauces = (req, res, next) => {
 };
 
 // GET : api/sauces/:id.
-exports.getSauce = (req, res, next) => {
+exports.getSauce = (req, res) => {
     const id = req.params.id;
     const SauceIdValidator = new Validator({ id: id }, {
         id: 'required|regex:[a-zA-z0123456789]'
@@ -38,7 +38,7 @@ exports.getSauce = (req, res, next) => {
 };
 
 // POST : api/sauces.
-exports.postSauce = (req, res, next) => {
+exports.postSauce = (req, res) => {
     const sentData = JSON.parse(req.body.sauce);
     const SauceValidator = new Validator(sentData, {
         userId: 'required|regex:[a-zA-z0123456789]',
@@ -92,7 +92,7 @@ exports.postSauce = (req, res, next) => {
 };
 
 // PUT : api/sauces/:id.
-exports.putSauce = (req, res, next) => {
+exports.putSauce = (req, res) => {
     if (req.file) {
         var sentData = JSON.parse(req.body.sauce);
         sentData.id = req.params.id;
@@ -182,7 +182,7 @@ exports.putSauce = (req, res, next) => {
 };
 
 // DELETE : api/sauces/:id.
-exports.deleteSauce = (req, res, next) => {
+exports.deleteSauce = (req, res) => {
     const id = req.params.id;
     const SauceIdValidator = new Validator({ id: id }, {
         id: 'required|regex:[a-zA-z0123456789]'
@@ -215,7 +215,7 @@ exports.deleteSauce = (req, res, next) => {
 };
 
 // POST : api/sauces/:id/like.
-exports.sauceReview = (req, res, next) => {
+exports.sauceReview = (req, res) => {
     const id = req.params.id;
     const like = req.body.like;
     const userId = req.body.userId;
