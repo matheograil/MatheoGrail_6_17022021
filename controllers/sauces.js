@@ -105,7 +105,7 @@ exports.putSauce = (req, res, next) => {
             description: req.body.description,
             mainPepper: req.body.mainPepper,
             heat: req.body.heat
-        }
+        };
     }
     const SauceValidator = new Validator(sentData, {
         id: 'required|regex:[a-zA-z0123456789]',
