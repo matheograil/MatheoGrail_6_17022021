@@ -24,8 +24,8 @@ mongoose.connect(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD
     .catch(() => console.log('Connexion à la base de données échouée.'));
 
 // Les différentes routes.
-const registerRoutes = require('./routes/auth');
-app.use('/api/auth', registerRoutes);
+const authRoutes = require('./routes/auth');
+app.use('/api/auth', authRoutes);
 const saucesRoutes = require('./routes/sauces');
 app.use('/api/sauces', saucesRoutes);
 
