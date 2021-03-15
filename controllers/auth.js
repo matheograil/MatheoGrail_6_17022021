@@ -7,7 +7,7 @@ const jsonwebtoken = require('jsonwebtoken');
 const sanitize = require('mongo-sanitize');
 
 // GET : api/auth/signup.
-exports.register = (req, res, next) => {
+exports.register = (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
     const UserValidator = new Validator({ email: email, password: password }, {
@@ -42,7 +42,7 @@ exports.register = (req, res, next) => {
 };
 
 // POST : api/auth/login.
-exports.login = (req, res, next) => {
+exports.login = (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
     const UserValidator = new Validator({ email: email, password: password }, {
