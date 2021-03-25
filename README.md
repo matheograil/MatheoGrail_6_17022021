@@ -1,4 +1,6 @@
 # OpenClassrooms - Sixième projet
+**⚠️ Ce projet est archivé et n'est plus maintenu à jour.**
+
 Construisez une API sécurisée pour une application d'avis gastronomiques.
 
 [![CodeQL](https://github.com/matheograil/MatheoGrail_6_17022021/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/matheograil/MatheoGrail_6_17022021/actions/workflows/codeql-analysis.yml)
